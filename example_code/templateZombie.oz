@@ -9,9 +9,9 @@
  *     ozc -c templateZombie.oz  **This will generate templateZombie.ozf
  *     ozengine templateZombie.ozf
  * Examples of execution
- *    ozengine templateZombie --help
- *    ozengine templateZombie --map mymap
- *    ozengine templateZombie -m mymap --z 4 -i 4
+ *    ozengine templateZombie.ozf --help
+ *    ozengine templateZombie.ozf --map mymap
+ *    ozengine templateZombie.ozf -m mymap -s 4 -i 4
  *
  *-------------------------------------------------------------------------
  */
@@ -38,7 +38,7 @@ define
               record(
                      map(single char:&m type:atom default:MAP)
                      zombie(single char:&s type:int default:NUMZOMBIES)
-                     item(single char:&b type:int default:ITEMS2PICK) 
+                     item(single char:&b type:int default:ITEMS2PICK)
                      bullet(single char:&n type:int default:INITIALBULLETS) 
                      help(single char:[&? &h] default:false)
                     )}
@@ -50,10 +50,14 @@ in
       {Say "Usage: "#{Property.get 'application.url'}#" [option]"}
       {Say "Options:"}
       {Say "  -m, --map FILE\tFile containing the map (default "#MAP#")"}
-      {Say "  -z, --zombie INT\tNumber of zombies"}
-      {Say "  -i, --item INT\tTotal number of items to pick"}
+      {Say "  -s, --zombie INT\tNumber of zombies"}
+      {Say "  -b, --item INT\tTotal number of items to pick"}
       {Say "  -n, --bullet INT\tInitial number of bullets"}
       {Say "  -h, -?, --help\tThis help"}
+      {Say "Example : Following lines are equivalent"}
+      {Say "   ozengine templateZombie.ozf -s 4"}
+      {Say "   ozengine templateZombie.ozf --z 4"}
+      {Say "   ozengine templateZombie.ozf --zombie 4"}
       {Application.exit 0}
    end
 
