@@ -2,13 +2,13 @@ local
    QTK
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
    %PATH POUR MOI. A TOI DE METTRE LES TIENS (COMME POUR L'AUTRE LE LOAD MAP)
-   Brave = {QTk.newImage photo(file:'x-oz://system/wp/brave.gif')}
-   Zombie = {QTk.newImage photo(file:'x-oz://system/wp/zombie.gif')}
-   Food = {QTk.newImage photo(file:'x-oz://system/wp/food.gif')}
-   Bullets = {QTk.newImage photo(file:'x-oz://system/wp/bullets.gif')}
-   Medicine = {QTk.newImage photo(file:'x-oz://system/wp/medicine.gif')}
-   Floor = {QTk.newImage photo(file:'x-oz://system/wp/floor.gif')}
-   Wall = {QTk.newImage photo(file:'x-oz://system/wp/floor.gif')}
+   %Brave = {QTk.newImage photo(file:'x-oz://system/wp/brave.gif')}
+   %Zombie = {QTk.newImage photo(file:'x-oz://system/wp/zombie.gif')}
+   %Food = {QTk.newImage photo(file:'x-oz://system/wp/food.gif')}
+   %Bullets = {QTk.newImage photo(file:'x-oz://system/wp/bullets.gif')}
+   %Medicine = {QTk.newImage photo(file:'x-oz://system/wp/medicine.gif')}
+   %Floor = {QTk.newImage photo(file:'x-oz://system/wp/floor.gif')}
+   %Wall = {QTk.newImage photo(file:'x-oz://system/wp/floor.gif')}
    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    Canvas
    Z
