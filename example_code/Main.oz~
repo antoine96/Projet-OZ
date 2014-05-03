@@ -26,34 +26,7 @@ local
 	  (({Abs {OS.rand}} mod J) + 1)|{Numbers N-1 J}
       end
    end
-   fun{Trier L}
-      fun{Concat Xs Ys}
-	 case Xs of X|Xr then
-	    X|{Concat Xr Ys}
-	 [] nil then Ys
-	 end
-      end
-      proc{Partition L2 X L R}
-	 case L2
-	 of Y|M2 then
-	    if Y<X then Ln in
-	       L=Y|Ln
-	       {Partition M2 X Ln R}
-	    else Rn in
-	       R=Y|Rn
-	       {Partition M2 X L Rn}
-	    end
-	 [] nil then L=nil R=nil
-	 end
-      end
-   in
-      case L of X|L2 then Left Right SL SR in
-	 {Partition L2 X Left Right}
-	 SL={Trier Left}
-	 SR={Trier Right}
-	 {Concat SL X|SR}
-      [] nil then nil end
-   end
+   
    fun{CountZero Map}
       fun{CountZero Map Acc Lignes}
 	 fun{CountZeroAcc L Acc Col}
@@ -207,7 +180,8 @@ local
       {Game NewX NewY NextCommand}
    end
 in
+   {Browse {Numbers 10 {CountZero Map}}}
    {Window show}
-   {InitLayout {RemplirListe Map  {Trier {Numbers 10 {CountZero Map}}}}}
+   {InitLayout {RemplirListe Map [1 142]}}
    %{Game 8 8 Command}
 end
