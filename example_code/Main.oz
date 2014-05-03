@@ -19,8 +19,13 @@ local
    Map
    Command
    CommandPort = {NewPort Command}%VOIR MESSAGE PASSING
-  
-   
+   fun {Numbers N J}
+      if N == 0 then
+	 nil
+      else
+	  (({Abs {OS.rand}} mod J) + 1)|{Numbers N-1 J}
+      end
+   end
    fun{CountZero Map}
       fun{CountZero Map Acc Lignes}
 	 fun{CountZeroAcc L Acc Col}
@@ -168,7 +173,7 @@ local
       {Game NewX NewY NextCommand}
    end
 in
-   {Browse {CountZero Map}}
+   {Browse {Numbers 10 {CountZero Map}}}
    {Window show}
    {InitLayout {RemplirListe Map}}
    %{Game 8 8 Command}
