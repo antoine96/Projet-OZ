@@ -26,6 +26,7 @@ local
 	  (({Abs {OS.rand}} mod J) + 1)|{Numbers N-1 J}
       end
    end
+   
    fun{CountZero Map}
       fun{CountZero Map Acc Lignes}
 	 fun{CountZeroAcc L Acc Col}
@@ -73,40 +74,46 @@ local
       end
    end
    %TODO : DOUBLE CONDITION
-   fun{RemplirListe Z}
-      fun{RemplirListeAcc Z Ligne Col}
+   fun{RemplirListe Z Zombies}
+      fun{RemplirListeAcc Z Ligne Col Zombies Acc2}
 	 if (Ligne==HauteurMax) then if (Col=={Width Z.HauteurMax}+1) then nil
 				     else
 					if (Z.Ligne.Col)==5 then
-					   r(Brave Col Ligne)|{RemplirListeAcc Z Ligne Col+1}
+					   r(Brave Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
 					else
-					   r(Wall Col Ligne)|{RemplirListeAcc Z Ligne Col+1}
+					   r(Wall Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
 					end
 				     end
-	 else if Col=={Width Z.Ligne}+1 then {RemplirListeAcc Z Ligne+1 1}
+	 else if Col=={Width Z.Ligne}+1 then {RemplirListeAcc Z Ligne+1 1 Zombies Acc2}
 	      else
 		 if (Z.Ligne.Col)==0 then
-		    r(Floor Col Ligne)|{RemplirListeAcc Z Ligne Col+1}
+		    if Zombies==nil then r(Floor Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2+1}
+		    else
+		       if Acc2==Zombies.1 then 
+			  r(Zombie Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies.2 Acc2+1}
+		       else
+			  r(Floor Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2+1}
+		       end
+		    end
 		 elseif (Z.Ligne.Col)==1 then
-		    r(Wall Col Ligne)|{RemplirListeAcc Z Ligne Col+1}
+		    r(Wall Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
 		 elseif (Z.Ligne.Col)==2 then
-		    r(Bullets Col Ligne)|{RemplirListeAcc Z Ligne Col+1}
+		    r(Bullets Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
 		 elseif (Z.Ligne.Col)==3 then
-		    r(Food Col Ligne)|{RemplirListeAcc Z Ligne Col+1}
+		    r(Food Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
 		 elseif (Z.Ligne.Col)==4 then
-		    r(Medicine Col Ligne)|{RemplirListeAcc Z Ligne Col+1}
+		    r(Medicine Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
 		 elseif (Z.Ligne.Col)==5 then
-		    r(Brave Col Ligne)|{RemplirListeAcc Z Ligne Col+1}
+		    r(Brave Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
 		 else
-		    {RemplirListeAcc Z Ligne Col+1}
+		    {RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
 		 end
 	      end
 	 end
       end
    in
-      {RemplirListeAcc Z 1 1}
+      {RemplirListeAcc Z 1 1 Zombies 1}
    end
-   
    Map={LoadPickle CD#'/map_test.ozp'}
    %Map=map(r(1 1 0 0 0 0)
 	   %r(0 0 0 1 1 1)
@@ -175,6 +182,6 @@ local
 in
    {Browse {Numbers 10 {CountZero Map}}}
    {Window show}
-   {InitLayout {RemplirListe Map}}
+   {InitLayout {RemplirListe Map [1 142]}}
    %{Game 8 8 Command}
 end
