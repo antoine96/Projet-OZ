@@ -19,7 +19,30 @@ local
    Map
    Command
    CommandPort = {NewPort Command}%VOIR MESSAGE PASSING
+  
    
+   fun{CountZero Map}
+      fun{CountZero Map Acc Lignes}
+	 fun{CountZeroAcc L Acc Col}
+	    if (Col-1)=={Width L} then Acc
+	    else
+	       if L.Col==0 then {CountZeroAcc L Acc+1 Col+1}
+	       else
+		  {CountZeroAcc L Acc Col+1}
+	       end
+	    end
+	 end
+      in
+	 if (Lignes-1)=={Width Map} then Acc
+	 else
+	    {CountZero Map Acc+{CountZeroAcc Map.Lignes 0 1} Lignes+1}
+	 end
+      end
+   in
+      {CountZero Map 0 1}
+   end
+   
+ 
    fun{MaxWidth Z}
       fun{MaxWidthAcc Z Acc Max}
 	 if (Acc-1)=={Width Z} then Max
@@ -80,6 +103,10 @@ local
    end
    
    Map={LoadPickle CD#'/map_test.ozp'}
+   %Map=map(r(1 1 0 0 0 0)
+	   r(0 0 0 1 1 1)
+	   r(0 0 1)
+	   r(1))
    LargeurMax={MaxWidth Map}
    HauteurMax={Width Map}
    Desc=td(canvas(bg:white %MAP DE BASE (TAILLE ETC)
@@ -141,6 +168,7 @@ local
       {Game NewX NewY NextCommand}
    end
 in
+   {Browse {CountZero Map}}
    {Window show}
    {InitLayout {RemplirListe Map}}
    %{Game 8 8 Command}
