@@ -4,7 +4,8 @@ local
    %PATH IMAGES
    CD = {OS.getCWD}
    TailleCase=40
-   
+   NbZeros
+   Lzombies
    Brave = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/brave.gif')}
    Zombie = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/zombie.gif')}
    Food = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/food.gif')}
@@ -75,7 +76,25 @@ local
       {CountZero Map 0 1}
    end
    
- 
+   fun{Double L NbZeros}
+      fun{DoublonList L NbZeros Acc}
+	 fun{Doublon A L NbZeros Acc}
+	    case L of nil then A
+	    [] H|T then if A==H then {Doublon (({Abs {OS.rand}} mod NbZeros) + 1) Acc NbZeros Acc}
+			else
+			   {Doublon A T NbZeros Acc}
+			end
+	    end
+	 end
+      in
+	 case L of nil then nil
+	 [] H|T then {Doublon H T NbZeros Acc}|{DoublonList T NbZeros Acc}
+	 end
+      end
+   in
+      {DoublonList L NbZeros L}
+   end
+   
    fun{MaxWidth Z}
       fun{MaxWidthAcc Z Acc Max}
 	 if (Acc-1)=={Width Z} then Max
@@ -208,6 +227,8 @@ local
    end
 in
    {Window show}
-   {InitLayout {RemplirListe Map  {Trier {Numbers 10 {CountZero Map}}}}}
+   NbZeros={CountZero Map}
+   Lzombies= {Trier {Double {Numbers 5 NbZeros} NbZeros}}
+   {InitLayout {RemplirListe Map Lzombies}}
    %{Game 8 8 Command}
 end
