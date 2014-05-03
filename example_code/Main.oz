@@ -104,9 +104,9 @@ local
    
    Map={LoadPickle CD#'/map_test.ozp'}
    %Map=map(r(1 1 0 0 0 0)
-	   r(0 0 0 1 1 1)
-	   r(0 0 1)
-	   r(1))
+	   %r(0 0 0 1 1 1)
+	   %r(0 0 1)
+	   %r(1))
    LargeurMax={MaxWidth Map}
    HauteurMax={Width Map}
    Desc=td(canvas(bg:white %MAP DE BASE (TAILLE ETC)
