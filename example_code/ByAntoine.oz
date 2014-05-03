@@ -49,8 +49,11 @@ local
       fun{RemplirListeAcc Z Ligne Col}
 	 if (Ligne==HauteurMax) then if (Col=={Width Z.HauteurMax}+1) then nil
 				     else
-					%et si la porte était en bas?
-					r(Wall Col Ligne)|{RemplirListeAcc Z Ligne Col+1}
+					if (Z.Ligne.Col)==5 then
+					   r(Brave Col Ligne)|{RemplirListeAcc Z Ligne Col+1}
+					else
+					   r(Wall Col Ligne)|{RemplirListeAcc Z Ligne Col+1}
+					end
 				     end
 	 else if Col=={Width Z.Ligne}+1 then {RemplirListeAcc Z Ligne+1 1}
 	      else
