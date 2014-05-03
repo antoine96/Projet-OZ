@@ -139,9 +139,6 @@ local
    end
 in
    {Window show}
-   %Initialize zombies and user
-   %ON VOIT ICI LES CASES A COLORER
    {InitLayout {RemplirListe Map}}
-   %{InitLayout [r(Brave 1 2)]}
    %{Game 8 8 Command}
 end
