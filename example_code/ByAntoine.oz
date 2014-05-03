@@ -93,27 +93,12 @@ local
    %%%%%%%%%%%%%%%%%%%%%%%
    
    proc{DrawBox Image X Y}%POUR FAIRE LES CASES (et les images)
-      {Canvas create(rect X*40 Y*40 X*40+40 Y*40+40 outline:black)}
+     % {Canvas create(rect X*40 Y*40 X*40+40 Y*40+40 outline:black)}
       {Canvas create(image X*40-20 Y*40-20 image:Image anchor:center)}
    end
    
    proc{InitLayout ListToDraw}
-      proc{DrawHline X1 Y1 X2 Y2}%LIGNES HORIZONTALES
-	 if X1>TailleCase*LargeurMax orelse X1<0 orelse Y1>TailleCase*HauteurMax orelse Y1<0 then
-	    skip
-	 else
-	    {Canvas create(line X1 Y1 X2 Y2 fill:black)}
-	    {DrawHline X1+40 Y1 X2+40 Y2}
-	 end
-      end
-      proc{DrawVline X1 Y1 X2 Y2}%LIGNES VERTICALES
-	 if X1>LargeurMax orelse X1<0 orelse Y1>TailleCase*HauteurMax orelse Y1<0 then
-	    skip
-	 else
-	    {Canvas create(line X1 Y1 X2 Y2 fill:black)}
-	    {DrawVline X1 Y1+40 X2 Y2+40}
-	 end
-      end
+
       proc{DrawUnits L}%COLOR LES CASES
 	 case L of r(Image X Y)|T then
 	    {DrawBox Image X Y}
@@ -123,8 +108,7 @@ local
 	 end
       end
    in
-      {DrawHline 0 0 0 TailleCase*HauteurMax}
-      {DrawVline 0 0 TailleCase*LargeurMax 0}
+
       {DrawUnits ListToDraw}
    end
    
