@@ -239,6 +239,7 @@ local
       NewX NewY
       NextCommand
       fun{UserCommand Command Count X Y LX LY List Nammo Nobjettake}
+	 {Browse Nobjettake}
 	 IX IY in
 	 {NBullets set(text:Nammo)}
 	 case Command of r(DX DY)|T then
@@ -261,7 +262,7 @@ local
 		     
 		     {DrawBox Floor X Y}
 		     {DrawBox Brave IX IY}
-		 {UserCommand T Count+1 IX IY LX LY {UpdateList List IX IY Floor} Nammo-1 Nobjettake} %perd une munition si tue zombie
+		     {UserCommand T Count+1 IX IY LX LY {UpdateList List IX IY Floor} Nammo-1 Nobjettake} %perd une munition si tue zombie
 		  end
 	       else
 		  {DrawBox Floor  X Y}
@@ -269,9 +270,13 @@ local
 		  if {CheckCase List IX IY Floor}==false then %Ramasser compte pour 1 pas
 		     if{CheckCase List IX IY Bullets}==true then
 			{UserCommand T Count+2 IX IY LX LY List Nammo+1 Nobjettake+1} %gagne une mun si il en ramasse une
-		     else
-			
+		     elseif{CheckCase List IX IY Medicine}==true then
 			{UserCommand T Count+2 IX IY LX LY List Nammo Nobjettake+1}
+		     elseif{CheckCase List IX IY Food}==true then
+			{UserCommand T Count+2 IX IY LX LY List Nammo Nobjettake+1}
+		     else if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count X Y LX LY List Nammo Nobjettake}
+			  else {UserCommand finish|nil Count X Y LX LY List Nammo Nobjettake}
+			  end
 		     end
 		     
 		  else
@@ -282,6 +287,18 @@ local
 	       
 	    end
 	 [] finish|T then
+	    {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
+	    {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2) text:"GAME OVER" fill:red)}
+	    {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2)+15 text:"Press space bar to close the window" fill:red)}
+	    {Canvas create(text (TailleCase*LargeurMax)-130 (TailleCase*HauteurMax)-20 text:"By Daubry Benjamin & Van Malleghem Antoine" fill:red)}
+	    LX = X
+	    LY = Y
+	    T
+	 [] win|T then
+	    {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
+	    {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2) text:"YOU WIN !!!!!!!!" fill:red)}
+	    {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2)+15 text:"Press space bar to close the window" fill:red)}
+	    {Canvas create(text (TailleCase*LargeurMax)-130 (TailleCase*HauteurMax)-20 text:"By Daubry Benjamin & Van Malleghem Antoine" fill:red)}
 	    LX = X
 	    LY = Y
 	    T
@@ -303,8 +320,4 @@ in
    {Canvas create(text 125 10 text:NAmmo fill:red handle:NBullets)}
    {Game Xbrave Ybrave Command MapList}
    {Window bind(event:"<space>" action:toplevel#close)}
-   {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
-   {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2) text:"GAME OVER" fill:red)}
-   {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2)+15 text:"Press space bar to close the window" fill:red)}
-   {Canvas create(text (TailleCase*LargeurMax)-130 (TailleCase*HauteurMax)-20 text:"By Daubry Benjamin & Van Malleghem Antoine" fill:red)}
 end
