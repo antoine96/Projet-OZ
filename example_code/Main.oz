@@ -239,11 +239,10 @@ local
       NewX NewY
       NextCommand
       fun{UserCommand Command Count X Y LX LY List Nammo Nobjettake}
-	 {Browse Nobjettake}
 	 IX IY in
 	 {NBullets set(text:Nammo)}
 	 case Command of r(DX DY)|T then
-	    if Count == 1000 then %2 pas à la fois (sans zombie)
+	    if Count == 2 then %2 pas à la fois (sans zombie)
 	       {UserCommand T Count X Y  LX LY List Nammo Nobjettake}
 	    else
 	       IX = X+DX
@@ -318,6 +317,7 @@ in
    {InitLayout MapList}
    {Canvas create(text 55 10 text:"Number of bullets :" fill:red)}
    {Canvas create(text 125 10 text:NAmmo fill:red handle:NBullets)}
+   {Send CommandPort r(0 1)}
    {Game Xbrave Ybrave Command MapList}
    {Window bind(event:"<space>" action:toplevel#close)}
 end
