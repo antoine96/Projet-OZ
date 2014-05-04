@@ -1,17 +1,30 @@
 local
-   QTK
+   QTk
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
-   %PATH IMAGES
-   CD = {OS.getCWD}
-   NZombies=142
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RECUPERATION DES ARGUMENTS
+   NZombies=15 %Nombre de zombies par défaut (quand on ne passe pas en argument)
+   NObjetNeeded=3 %Nombre d'objets nécessaires par défaut (quand on ne passe pas en argument)
+   NAmmo=2 %Nombre de balles par défaut (quand on ne passe pas en argument)
+   %TODO RECUPERER LES ARGUMENTS
+
+   
    Message="Dead"
-   Say=System.showInfo
-   NObjetNeeded=3
-   NObjetTake= 0
-   NAmmo=2
-   TailleCase=40
-   NbZeros
-   Lzombies
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%AUTRES
+   NObjetTake= 0 %Nb d'objet pris
+   TailleCase=40 %Taille d'une case de la map
+   NbZeros %Nombre d'espaces vides dans la map
+   Lzombies %Liste des cases ou on mettra des zombies
+   Canvas % Le canvas de la carte
+   LargeurMax %Largeur maximale de la carte
+   HauteurMax %Hauteur maximale de la carte
+   Map % La map comme décrite dans le fichier chargé
+   MapList %Liste de ce qu'il y a dans la map
+   Xbrave %La position horizontale du brave
+   Ybrave %La position verticale du brave
+   Command % le port
+   CommandPort = {NewPort Command}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHARGEMENT DES IMAGES
+   CD = {OS.getCWD}
    Brave = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/brave.gif')}
    Zombie = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/zombie.gif')}
    Food = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/food.gif')}
@@ -19,16 +32,9 @@ local
    Medicine = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/medicine.gif')}
    Floor = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/floor.gif')}
    Wall = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/wall.gif')}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   Canvas
-   LargeurMax
-   HauteurMax
-   Map
-   Command
-   CommandPort = {NewPort Command}%VOIR MESSAGE PASSING
-   MapList
-   Xbrave
-   Ybrave
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  Desc2
+   
    fun{List N}
       if N==0 then nil
       else
@@ -193,6 +199,10 @@ local
 		  width:TailleCase*LargeurMax
 		  height:TailleCase*HauteurMax
 		  handle:Canvas))
+   Desc2=td(canvas(bg:black %MAP DE BASE (TAILLE ETC)
+		   width:TailleCase*LargeurMax
+		   height:TailleCase*HauteurMax
+		   handle:Canvas))
    Window={QTk.build Desc}
    %ASSIGNER LES TOUCHES
    {Window bind(event:"<Up>" action:proc{$} {Send CommandPort r(0 ~1)} end)}
@@ -221,6 +231,7 @@ local
       
       {DrawUnits ListToDraw}
    end
+   
    proc{Game OldX OldY Command List}%APPLIQUE LES REGLES DU JEU
       NewX NewY
       NextCommand
@@ -239,7 +250,7 @@ local
 		  if Nammo==0 then
 		     
 		     {DrawBox Floor X Y}
-		     1
+		     {UserCommand finish|nil Count X Y LX LY List Nammo Nobjettake}
 		     %%DEAD {Browse Message}
 		     
 		  else
@@ -274,7 +285,6 @@ local
       end
    in
       NextCommand = {UserCommand Command 0 OldX OldY NewX NewY List NAmmo NObjetTake}
-      {Game NewX NewY NextCommand List}
    end
 in
    {Window show}
@@ -287,4 +297,6 @@ in
    MapList={RemplirListe Map Lzombies}
    {InitLayout MapList}
    {Game Xbrave Ybrave Command MapList}
+   {Browse 1}
+   {{QTk.build Desc2} show}
 end
