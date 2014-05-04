@@ -3,12 +3,12 @@ local
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
    %PATH IMAGES
    CD = {OS.getCWD}
-   NZombies=5
+   NZombies=142
    Message="Dead"
    Say=System.showInfo
    NObjetNeeded=3
-  NObjetTake= 0
-  NAmmo=2
+   NObjetTake= 0
+   NAmmo=2
    TailleCase=40
    NbZeros
    Lzombies
@@ -19,7 +19,7 @@ local
    Medicine = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/medicine.gif')}
    Floor = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/floor.gif')}
    Wall = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/wall.gif')}
-   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
    Canvas
    LargeurMax
    HauteurMax
@@ -29,11 +29,30 @@ local
    MapList
    Xbrave
    Ybrave
-   fun {Numbers N J}
-      if N == 0 then
-	 nil
+   fun{List N}
+      if N==0 then nil
       else
-	  (({Abs {OS.rand}} mod J) + 1)|{Numbers N-1 J}
+	 N|{List N-1}
+      end
+   end
+   fun{Retirer N L}
+      if N==1 then if L==nil then nil else L.2 end
+      else
+	 L.1|{Retirer N-1 L.2}
+      end
+   end
+   fun{Take N L}
+      if N==1 then L.1
+      else
+	 {Take N-1 L.2}
+      end
+   end
+   fun{ChooseRand N L Taille}
+      if N==0 then nil
+      else
+	 local Rand in Rand=(({Abs {OS.rand}} mod Taille) + 1)
+	    {Take Rand L}|{ChooseRand N-1 {Retirer Rand L}  Taille-1}
+	 end
       end
    end
    fun{Trier L}
@@ -84,7 +103,7 @@ local
    in
       {CountZero Map 0 1}
    end
-    fun {CheckCase List X Y Image}
+   fun {CheckCase List X Y Image}
       case List of r(Img Col Ligne)|T then
 	 if Col == X then
 	    if Ligne==Y then Image==Img
@@ -96,25 +115,6 @@ local
 	 end
       end
    end
-   fun{Double L NbZeros}
-      fun{DoublonList L NbZeros Acc}
-	 fun{Doublon A L NbZeros Acc}
-	    case L of nil then A
-	    [] H|T then if A==H then {Doublon (({Abs {OS.rand}} mod NbZeros) + 1) Acc NbZeros Acc}
-			else
-			   {Doublon A T NbZeros Acc}
-			end
-	    end
-	 end
-      in
-	 case L of nil then nil
-	 [] H|T then {Doublon H T NbZeros Acc}|{DoublonList T NbZeros Acc}
-	 end
-      end
-   in
-      {DoublonList L NbZeros L}
-   end
-   
    fun{MaxWidth Z}
       fun{MaxWidthAcc Z Acc Max}
 	 if (Acc-1)=={Width Z} then Max
@@ -208,7 +208,7 @@ local
    end
    
    proc{InitLayout ListToDraw}
-
+      
       proc{DrawUnits L}%COLOR LES CASES
 	 case L of r(Image X Y)|T then
 	    {DrawBox Image X Y}
@@ -218,7 +218,7 @@ local
 	 end
       end
    in
-
+      
       {DrawUnits ListToDraw}
    end
    proc{Game OldX OldY Command List}%APPLIQUE LES REGLES DU JEU
@@ -233,16 +233,17 @@ local
 	       IX = X+DX
 	       IY = Y+DY
 	       if {CheckCase List IX IY Wall}==true then %PAS PASSER DANS LES MURS
-		   {UserCommand T Count X Y LX LY List Nammo Nobjettake}
+		  {UserCommand T Count X Y LX LY List Nammo Nobjettake}
 	       elseif {CheckCase List IX IY Zombie}==true then
-
+		  
 		  if Nammo==0 then
 		     
 		     {DrawBox Floor X Y}
-		    %%DEAD {Browse Message}
-		    
+		     1
+		     %%DEAD {Browse Message}
+		     
 		  else
-		    
+		     
 		     {DrawBox Floor X Y}
 		     {DrawBox Brave IX IY}
 		     {UserCommand T Count+1 IX IY LX LY List Nammo-1 Nobjettake} %perd une munition si tue zombie
@@ -252,7 +253,7 @@ local
 		  {DrawBox Brave IX IY}
 		  if {CheckCase List IX IY Floor}==false then %Ramasser compte pour 1 pas
 		     if{CheckCase List IX IY Bullets}==true then
-				{UserCommand T Count+2 IX IY LX LY List Nammo+1 Nobjettake+1} %gagne une mun si il en ramasse une
+			{UserCommand T Count+2 IX IY LX LY List Nammo+1 Nobjettake+1} %gagne une mun si il en ramasse une
 		     else
 			
 			{UserCommand T Count+2 IX IY LX LY List Nammo Nobjettake+1}
@@ -263,7 +264,7 @@ local
 		  end
 	       end
 	       
-	      
+	       
 	    end
 	 [] finish|T then
 	    LX = X
@@ -279,7 +280,10 @@ in
    {Window show}
    
    NbZeros={CountZero Map}
-   Lzombies= {Trier {Double {Numbers NZombies NbZeros} NbZeros}}
+   if NbZeros < NZombies then Lzombies={Trier {ChooseRand NbZeros {List NbZeros} NbZeros}}
+   else
+      Lzombies= {Trier {ChooseRand NZombies {List NbZeros} NbZeros}}
+   end
    MapList={RemplirListe Map Lzombies}
    {InitLayout MapList}
    {Game Xbrave Ybrave Command MapList}

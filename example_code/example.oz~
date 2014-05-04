@@ -1,0 +1,8 @@
+declare
+fun{Take N L}
+   if N==1 then L.1
+   else
+      {Take N-1 L.2}
+   end
+end
+{Browse {Take 4 [1 2 3 4 5]}}
