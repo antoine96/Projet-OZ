@@ -121,21 +121,6 @@ local
 	 end
       end
    end
-
-       fun {UpdateList List X Y Image}
-      case List of r(Img Col Ligne)|T then
-	 if Col == X then
-	    if Ligne==Y then
-	       r(Image Col Ligne)|T
-	    else
-	      r(Img Col Ligne)|{UpdateList T X Y Image}
-	    end
-	 else
-	    r(Img Col Ligne)|{UpdateList T X Y Image}
-	 end
-      end
-       end
-       
    fun{MaxWidth Z}
       fun{MaxWidthAcc Z Acc Max}
 	 if (Acc-1)=={Width Z} then Max
@@ -272,7 +257,7 @@ local
 		     
 		     {DrawBox Floor X Y}
 		     {DrawBox Brave IX IY}
-		 {UserCommand T Count+1 IX IY LX LY {UpdateList List IX IY Floor} Nammo-1 Nobjettake} %perd une munition si tue zombie
+		     {UserCommand T Count+1 IX IY LX LY List Nammo-1 Nobjettake} %perd une munition si tue zombie
 		  end
 	       else
 		  {DrawBox Floor  X Y}
