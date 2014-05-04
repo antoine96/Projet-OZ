@@ -3,6 +3,12 @@ local
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
    %PATH IMAGES
    CD = {OS.getCWD}
+   NZombies=5
+   Message="Dead"
+   Say=System.showInfo
+   NObjetNeeded=3
+  NObjetTake= 0
+  NAmmo=2
    TailleCase=40
    NbZeros
    Lzombies
@@ -218,29 +224,45 @@ local
    proc{Game OldX OldY Command List}%APPLIQUE LES REGLES DU JEU
       NewX NewY
       NextCommand
-      fun{UserCommand Command Count X Y LX LY List}
+      fun{UserCommand Command Count X Y LX LY List Nammo Nobjettake}
 	 IX IY in
 	 case Command of r(DX DY)|T then
 	    if Count == 1000 then %2 pas à la fois (sans zombie)
-	       {UserCommand T Count X Y  LX LY List}
+	       {UserCommand T Count X Y  LX LY List Nammo Nobjettake}
 	    else
 	       IX = X+DX
 	       IY = Y+DY
 	       if {CheckCase List IX IY Wall}==true then %PAS PASSER DANS LES MURS
-		   {UserCommand T Count X Y LX LY List}
+		   {UserCommand T Count X Y LX LY List Nammo Nobjettake}
+	       elseif {CheckCase List IX IY Zombie}==true then
+
+		  if Nammo==0 then
+		     
+		     {DrawBox Floor X Y}
+		    %%DEAD {Browse Message}
+		    
+		  else
+		    
+		     {DrawBox Floor X Y}
+		     {DrawBox Brave IX IY}
+		     {UserCommand T Count+1 IX IY LX LY List Nammo-1 Nobjettake} %perd une munition si tue zombie
+		  end
 	       else
 		  {DrawBox Floor  X Y}
 		  {DrawBox Brave IX IY}
-		  if {CheckCase List IX IY Zombie}==true then
-		     %si munition, tue zombie, si pas, tue brave
-		     {UserCommand T Count+1 IX IY LX LY List}
-		  elseif {CheckCase List IX IY Floor}==false then %Ramasser compte pour 1 pas
-		     {UserCommand T Count+2 IX IY LX LY List}
+		  if {CheckCase List IX IY Floor}==false then %Ramasser compte pour 1 pas
+		     if{CheckCase List IX IY Bullets}==true then
+				{UserCommand T Count+2 IX IY LX LY List Nammo+1 Nobjettake+1} %gagne une mun si il en ramasse une
+		     else
+			
+			{UserCommand T Count+2 IX IY LX LY List Nammo Nobjettake+1}
+		     end
+		     
 		  else
-		     {UserCommand T Count+1 IX IY LX LY List}
+		     {UserCommand T Count+1 IX IY LX LY List Nammo Nobjettake}
 		  end
 	       end
-
+	       
 	      
 	    end
 	 [] finish|T then
@@ -250,14 +272,14 @@ local
 	 end
       end
    in
-      NextCommand = {UserCommand Command 0 OldX OldY NewX NewY List}
+      NextCommand = {UserCommand Command 0 OldX OldY NewX NewY List NAmmo NObjetTake}
       {Game NewX NewY NextCommand List}
    end
 in
    {Window show}
    
    NbZeros={CountZero Map}
-   Lzombies= {Trier {Double {Numbers 5 NbZeros} NbZeros}}
+   Lzombies= {Trier {Double {Numbers NZombies NbZeros} NbZeros}}
    MapList={RemplirListe Map Lzombies}
    {InitLayout MapList}
    {Game Xbrave Ybrave Command MapList}
