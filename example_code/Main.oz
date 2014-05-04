@@ -229,9 +229,12 @@ local
 	       if {CheckCase List IX IY Wall}==true then %PAS PASSER DANS LES MURS
 		   {UserCommand T Count X Y LX LY List}
 	       else
-		   {DrawBox Floor  X Y}
+		  {DrawBox Floor  X Y}
 		  {DrawBox Brave IX IY}
-		  if {CheckCase List IX IY Floor}==false then %Ramasser compte pour 1 pas
+		  if {CheckCase List IX IY Zombie}==true then
+		     %si munition, tue zombie, si pas, tue brave
+		     {UserCommand T Count+1 IX IY LX LY List}
+		  elseif {CheckCase List IX IY Floor}==false then %Ramasser compte pour 1 pas
 		     {UserCommand T Count+2 IX IY LX LY List}
 		  else
 		     {UserCommand T Count+1 IX IY LX LY List}

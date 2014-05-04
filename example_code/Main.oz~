@@ -4,7 +4,8 @@ local
    %PATH IMAGES
    CD = {OS.getCWD}
    TailleCase=40
-   
+   NbZeros
+   Lzombies
    Brave = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/brave.gif')}
    Zombie = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/zombie.gif')}
    Food = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/food.gif')}
@@ -19,6 +20,9 @@ local
    Map
    Command
    CommandPort = {NewPort Command}%VOIR MESSAGE PASSING
+   MapList
+   Xbrave
+   Ybrave
    fun {Numbers N J}
       if N == 0 then
 	 nil
@@ -26,7 +30,34 @@ local
 	  (({Abs {OS.rand}} mod J) + 1)|{Numbers N-1 J}
       end
    end
-   
+   fun{Trier L}
+      fun{Concat Xs Ys}
+	 case Xs of X|Xr then
+	    X|{Concat Xr Ys}
+	 [] nil then Ys
+	 end
+      end
+      proc{Partition L2 X L R}
+	 case L2
+	 of Y|M2 then
+	    if Y<X then Ln in
+	       L=Y|Ln
+	       {Partition M2 X Ln R}
+	    else Rn in
+	       R=Y|Rn
+	       {Partition M2 X L Rn}
+	    end
+	 [] nil then L=nil R=nil
+	 end
+      end
+   in
+      case L of X|L2 then Left Right SL SR in
+	 {Partition L2 X Left Right}
+	 SL={Trier Left}
+	 SR={Trier Right}
+	 {Concat SL X|SR}
+      [] nil then nil end
+   end
    fun{CountZero Map}
       fun{CountZero Map Acc Lignes}
 	 fun{CountZeroAcc L Acc Col}
@@ -47,8 +78,37 @@ local
    in
       {CountZero Map 0 1}
    end
+    fun {CheckCase List X Y Image}
+      case List of r(Img Col Ligne)|T then
+	 if Col == X then
+	    if Ligne==Y then Image==Img
+	    else
+	       {CheckCase T X Y Image}
+	    end
+	 else
+	    {CheckCase T X Y Image}
+	 end
+      end
+   end
+   fun{Double L NbZeros}
+      fun{DoublonList L NbZeros Acc}
+	 fun{Doublon A L NbZeros Acc}
+	    case L of nil then A
+	    [] H|T then if A==H then {Doublon (({Abs {OS.rand}} mod NbZeros) + 1) Acc NbZeros Acc}
+			else
+			   {Doublon A T NbZeros Acc}
+			end
+	    end
+	 end
+      in
+	 case L of nil then nil
+	 [] H|T then {Doublon H T NbZeros Acc}|{DoublonList T NbZeros Acc}
+	 end
+      end
+   in
+      {DoublonList L NbZeros L}
+   end
    
- 
    fun{MaxWidth Z}
       fun{MaxWidthAcc Z Acc Max}
 	 if (Acc-1)=={Width Z} then Max
@@ -104,6 +164,8 @@ local
 		 elseif (Z.Ligne.Col)==4 then
 		    r(Medicine Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
 		 elseif (Z.Ligne.Col)==5 then
+		    Xbrave=Col
+		    Ybrave=Ligne
 		    r(Brave Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
 		 else
 		    {RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
@@ -153,21 +215,30 @@ local
 
       {DrawUnits ListToDraw}
    end
-   
-   proc{Game OldX OldY Command}%APPLIQUE LES REGLES DU JEU
+   proc{Game OldX OldY Command List}%APPLIQUE LES REGLES DU JEU
       NewX NewY
       NextCommand
-      fun{UserCommand Command Count X Y LX LY}
+      fun{UserCommand Command Count X Y LX LY List}
 	 IX IY in
 	 case Command of r(DX DY)|T then
-	    if Count == 2 then
-	       {UserCommand T Count X Y  LX LY}
+	    if Count == 1000 then %2 pas à la fois (sans zombie)
+	       {UserCommand T Count X Y  LX LY List}
 	    else
 	       IX = X+DX
 	       IY = Y+DY
-	       %{DrawBox green X Y}
-	       %{DrawBox white IX IY}
-	       {UserCommand T Count+1 IX IY LX LY }
+	       if {CheckCase List IX IY Wall}==true then %PAS PASSER DANS LES MURS
+		   {UserCommand T Count X Y LX LY List}
+	       else
+		   {DrawBox Floor  X Y}
+		  {DrawBox Brave IX IY}
+		  if {CheckCase List IX IY Floor}==false then %Ramasser compte pour 1 pas
+		     {UserCommand T Count+2 IX IY LX LY List}
+		  else
+		     {UserCommand T Count+1 IX IY LX LY List}
+		  end
+	       end
+
+	      
 	    end
 	 [] finish|T then
 	    LX = X
@@ -176,12 +247,15 @@ local
 	 end
       end
    in
-      NextCommand = {UserCommand Command 0 OldX OldY NewX NewY}
-      {Game NewX NewY NextCommand}
+      NextCommand = {UserCommand Command 0 OldX OldY NewX NewY List}
+      {Game NewX NewY NextCommand List}
    end
 in
-   {Browse {Numbers 10 {CountZero Map}}}
    {Window show}
-   {InitLayout {RemplirListe Map [1 142]}}
-   %{Game 8 8 Command}
+   
+   NbZeros={CountZero Map}
+   Lzombies= {Trier {Double {Numbers 5 NbZeros} NbZeros}}
+   MapList={RemplirListe Map Lzombies}
+   {InitLayout MapList}
+   {Game Xbrave Ybrave Command MapList}
 end
