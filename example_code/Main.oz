@@ -11,6 +11,7 @@ local
    Message="Dead"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%AUTRES
    NObjetTake= 0 %Nb d'objet pris
+   NBullets
    TailleCase=40 %Taille d'une case de la map
    NbZeros %Nombre d'espaces vides dans la map
    Lzombies %Liste des cases ou on mettra des zombies
@@ -33,7 +34,6 @@ local
    Floor = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/floor.gif')}
    Wall = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/wall.gif')}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  Desc2
    
    fun{List N}
       if N==0 then nil
@@ -204,17 +204,13 @@ local
       {RemplirListeAcc Z 1 1 Zombies 1}
    end
    Map={LoadPickle CD#'/map_test.ozp'}
-   %Map=map(r(1 1 0 0 0 0)
-	   %r(0 0 0 1 1 1)
-	   %r(0 0 1)
-	   %r(1))
    LargeurMax={MaxWidth Map}
    HauteurMax={Width Map}
    Desc=td(title:"Zombieland" canvas(
-		  bg:white %MAP DE BASE (TAILLE ETC)
-		  width:TailleCase*LargeurMax
-		  height:TailleCase*HauteurMax
-		  handle:Canvas))
+				 bg:white %MAP DE BASE (TAILLE ETC)
+				 width:TailleCase*LargeurMax
+				 height:TailleCase*HauteurMax
+				 handle:Canvas))
    Window={QTk.build Desc}
    %ASSIGNER LES TOUCHES
    {Window bind(event:"<Up>" action:proc{$} {Send CommandPort r(0 ~1)} end)}
@@ -222,9 +218,7 @@ local
    {Window bind(event:"<Down>" action:proc{$} {Send CommandPort r(0 1)}  end)}
    {Window bind(event:"<Right>" action:proc{$} {Send CommandPort r(1 0)} end)}
    %%%%%%%%%%%%%%%%%%%%%%%
-   
    proc{DrawBox Image X Y}%POUR FAIRE LES CASES (et les images)
-     % {Canvas create(rect X*40 Y*40 X*40+40 Y*40+40 outline:black)}
       {Canvas create(image X*40-20 Y*40-20 image:Image anchor:center)}
    end
    proc{InitLayout ListToDraw}
@@ -241,12 +235,12 @@ local
       
       {DrawUnits ListToDraw}
    end
-   
    proc{Game OldX OldY Command List}%APPLIQUE LES REGLES DU JEU
       NewX NewY
       NextCommand
       fun{UserCommand Command Count X Y LX LY List Nammo Nobjettake}
 	 IX IY in
+	 {NBullets set(text:Nammo)}
 	 case Command of r(DX DY)|T then
 	    if Count == 1000 then %2 pas à la fois (sans zombie)
 	       {UserCommand T Count X Y  LX LY List Nammo Nobjettake}
@@ -305,6 +299,8 @@ in
    end
    MapList={RemplirListe Map Lzombies}
    {InitLayout MapList}
+   {Canvas create(text 55 10 text:"Number of bullets :" fill:red)}
+   {Canvas create(text 125 10 text:NAmmo fill:red handle:NBullets)}
    {Game Xbrave Ybrave Command MapList}
    {Window bind(event:"<space>" action:toplevel#close)}
    {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
