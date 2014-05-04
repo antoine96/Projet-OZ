@@ -231,7 +231,6 @@ local
      % {Canvas create(rect X*40 Y*40 X*40+40 Y*40+40 outline:black)}
       {Canvas create(image X*40-20 Y*40-20 image:Image anchor:center)}
    end
-   
    proc{InitLayout ListToDraw}
       
       proc{DrawUnits L}%COLOR LES CASES
@@ -312,6 +311,7 @@ in
    MapList={RemplirListe Map Lzombies}
    {InitLayout MapList}
    {Game Xbrave Ybrave Command MapList}
-   {Browse 1}
-   {{QTk.build Desc2} show}
+   {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
+   {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2) text:"GAME OVER" fill:red)}
+   {Canvas create(text (TailleCase*LargeurMax)-130 (TailleCase*HauteurMax)-20 text:"By Daubry Benjamin & Van Malleghem Antoine" fill:red)}
 end
