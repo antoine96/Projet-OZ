@@ -210,21 +210,17 @@ local
 	   %r(1))
    LargeurMax={MaxWidth Map}
    HauteurMax={Width Map}
-   Desc=td(canvas(bg:white %MAP DE BASE (TAILLE ETC)
+   Desc=td(title:"Zombieland" canvas(
+		  bg:white %MAP DE BASE (TAILLE ETC)
 		  width:TailleCase*LargeurMax
 		  height:TailleCase*HauteurMax
 		  handle:Canvas))
-   Desc2=td(canvas(bg:black %MAP DE BASE (TAILLE ETC)
-		   width:TailleCase*LargeurMax
-		   height:TailleCase*HauteurMax
-		   handle:Canvas))
    Window={QTk.build Desc}
    %ASSIGNER LES TOUCHES
    {Window bind(event:"<Up>" action:proc{$} {Send CommandPort r(0 ~1)} end)}
    {Window bind(event:"<Left>" action:proc{$} {Send CommandPort r(~1 0)} end)}
    {Window bind(event:"<Down>" action:proc{$} {Send CommandPort r(0 1)}  end)}
    {Window bind(event:"<Right>" action:proc{$} {Send CommandPort r(1 0)} end)}
-   {Window bind(event:"<space>" action:proc{$} {Send CommandPort finish} end)}
    %%%%%%%%%%%%%%%%%%%%%%%
    
    proc{DrawBox Image X Y}%POUR FAIRE LES CASES (et les images)
@@ -302,7 +298,6 @@ local
    end
 in
    {Window show}
-   
    NbZeros={CountZero Map}
    if NbZeros < NZombies then Lzombies={Trier {ChooseRand NbZeros {List NbZeros} NbZeros}}
    else
@@ -311,7 +306,9 @@ in
    MapList={RemplirListe Map Lzombies}
    {InitLayout MapList}
    {Game Xbrave Ybrave Command MapList}
+   {Window bind(event:"<space>" action:toplevel#close)}
    {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
    {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2) text:"GAME OVER" fill:red)}
+   {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2)+15 text:"Press space bar to close the window" fill:red)}
    {Canvas create(text (TailleCase*LargeurMax)-130 (TailleCase*HauteurMax)-20 text:"By Daubry Benjamin & Van Malleghem Antoine" fill:red)}
 end
