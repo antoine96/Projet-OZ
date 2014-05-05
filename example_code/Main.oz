@@ -281,7 +281,7 @@ local
 		     elseif{CheckCase List IX IY Food}==true then if Count<5 then  {DrawBox Floor  X Y}
 								     {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
 								  else
-								     {UserCommand T Count X Y X Y List Nammo Nobjettake} %PROBLEME ICI
+								     {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
 								  end
 		     else if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count X Y LX LY List Nammo Nobjettake}
 			  else {UserCommand finish|nil Count X Y LX LY List Nammo Nobjettake}
