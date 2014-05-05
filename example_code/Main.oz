@@ -244,7 +244,7 @@ local
 	 {NBullets set(text:Nammo)}
 	 {NObjetT set(text:Nobjettake)}
 	 case Command of r(DX DY)|T then
-	    if Count == 200 then %2 pas à la fois (sans zombie)
+	    if Count == 6 then %2 pas à la fois (sans zombie)
 	       {UserCommand T Count X Y  LX LY List Nammo Nobjettake}
 	    else
 	       IX = X+DX
@@ -266,21 +266,31 @@ local
 		     {UserCommand T Count+1 IX IY LX LY {UpdateList List IX IY Floor} Nammo-1 Nobjettake} %perd une munition si tue zombie
 		  end
 	       else
-		  {DrawBox Floor  X Y}
-		  {DrawBox Brave IX IY}
 		  if {CheckCase List IX IY Floor}==false then %Ramasser compte pour 1 pas
-		     if{CheckCase List IX IY Bullets}==true then
-			{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo+1 Nobjettake+1} %gagne une mun si il en ramasse une
-		     elseif{CheckCase List IX IY Medicine}==true then
-			{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
-		     elseif{CheckCase List IX IY Food}==true then
-			{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
+		     if{CheckCase List IX IY Bullets}==true then if Count<5 then  {DrawBox Floor  X Y}
+								    {DrawBox Brave IX IY} {UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo+1 Nobjettake}
+								 else
+								    {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
+								 end
+		 %gagne une mun si il en ramasse une
+		     elseif{CheckCase List IX IY Medicine}==true then if Count<5 then  {DrawBox Floor  X Y}
+									 {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
+								      else
+									 {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
+								      end
+		     elseif{CheckCase List IX IY Food}==true then if Count<5 then  {DrawBox Floor  X Y}
+								     {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
+								  else
+								     {UserCommand T Count X Y X Y List Nammo Nobjettake} %PROBLEME ICI
+								  end
 		     else if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count X Y LX LY List Nammo Nobjettake}
 			  else {UserCommand finish|nil Count X Y LX LY List Nammo Nobjettake}
 			  end
 		     end
 		     
 		  else
+		     {DrawBox Floor  X Y}
+		     {DrawBox Brave IX IY}
 		     {UserCommand T Count+1 IX IY LX LY List Nammo Nobjettake}
 		  end
 	       end
