@@ -6,13 +6,12 @@ local
    NObjetNeeded=3 %Nombre d'objets nécessaires par défaut (quand on ne passe pas en argument)
    NAmmo=2 %Nombre de balles par défaut (quand on ne passe pas en argument)
    %TODO RECUPERER LES ARGUMENTS
-
-   
-   Message="Dead"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%AUTRES
    NObjetTake= 0 %Nb d'objet pris
    NBullets
    NObjetT
+   Xporte
+   Yporte
    TailleCase=40 %Taille d'une case de la map
    NbZeros %Nombre d'espaces vides dans la map
    Lzombies %Liste des cases ou on mettra des zombies
@@ -35,7 +34,6 @@ local
    Floor = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/floor.gif')}
    Wall = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/wall.gif')}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   
    fun{List N}
       if N==0 then nil
       else
@@ -111,7 +109,8 @@ local
       {CountZero Map 0 1}
    end
    fun {CheckCase List X Y Image}
-      case List of r(Img Col Ligne)|T then
+      case List of nil then Image=='Floor'
+      []r(Img Col Ligne)|T then
 	 if Col == X then
 	    if Ligne==Y then Image==Img
 	    else
@@ -193,7 +192,9 @@ local
 		    r(Medicine Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
 		 elseif (Z.Ligne.Col)==5 then
 		    Xbrave=Col
+		    Xporte=Col
 		    Ybrave=Ligne
+		    Yporte=Ligne
 		    r(Brave Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
 		 else
 		    {RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
@@ -252,49 +253,39 @@ local
 	       if {CheckCase List IX IY Wall}==true then %PAS PASSER DANS LES MURS
 		  {UserCommand T Count X Y LX LY List Nammo Nobjettake}
 	       elseif {CheckCase List IX IY Zombie}==true then
-		  
 		  if Nammo==0 then
-		     
 		     {DrawBox Floor X Y}
 		     {UserCommand finish|nil Count X Y LX LY List Nammo Nobjettake}
-		     %%DEAD {Browse Message}
-		     
 		  else
-		     
 		     {DrawBox Floor X Y}
 		     {DrawBox Brave IX IY}
 		     {UserCommand T Count+1 IX IY LX LY {UpdateList List IX IY Floor} Nammo-1 Nobjettake} %perd une munition si tue zombie
 		  end
-	       else
-		  if {CheckCase List IX IY Floor}==false then %Ramasser compte pour 1 pas
-		     if{CheckCase List IX IY Bullets}==true then if Count<5 then  {DrawBox Floor  X Y}
+	       elseif{CheckCase List IX IY Bullets}==true then if Count<5 then  {DrawBox Floor  X Y}
 								    {DrawBox Brave IX IY} {UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo+1 Nobjettake}
 								 else
 								    {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
 								 end
 		 %gagne une mun si il en ramasse une
-		     elseif{CheckCase List IX IY Medicine}==true then if Count<5 then  {DrawBox Floor  X Y}
+	       elseif{CheckCase List IX IY Medicine}==true then if Count<5 then  {DrawBox Floor  X Y}
 									 {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
 								      else
 									 {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
 								      end
-		     elseif{CheckCase List IX IY Food}==true then if Count<5 then  {DrawBox Floor  X Y}
+	       elseif{CheckCase List IX IY Food}==true then if Count<5 then  {DrawBox Floor  X Y}
 								     {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
 								  else
 								     {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
-								  end
-		     else if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count X Y LX LY List Nammo Nobjettake}
-			  else {UserCommand finish|nil Count X Y LX LY List Nammo Nobjettake}
-			  end
-		     end
-		     
-		  else
-		     {DrawBox Floor  X Y}
-		     {DrawBox Brave IX IY}
-		     {UserCommand T Count+1 IX IY LX LY List Nammo Nobjettake}
-		  end
+							    end
+	       elseif IX==Xporte andthen IY==Yporte then  if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count IX IY LX LY List Nammo Nobjettake}
+							  else {UserCommand finish|nil Count IX IY LX LY List Nammo Nobjettake}
+							  end
+	       elseif{CheckCase List IX IY Floor}==true then {DrawBox Floor  X Y}
+		  {DrawBox Brave IX IY}
+		  {UserCommand T Count+1 IX IY LX LY List Nammo Nobjettake}
+	       else
+		  {UserCommand T Count X Y LX LY List Nammo Nobjettake}
 	       end
-	       
 	       
 	    end
 	 [] finish|T then
@@ -333,7 +324,6 @@ in
    {Canvas create(text 460 10 text:NObjetTake fill:red handle:NObjetT)}
    {Canvas create(text 470 10 text:"/" fill:red)}
     {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
-   {Send CommandPort r(0 1)}
    {Game Xbrave Ybrave Command MapList}
    {Window bind(event:"<space>" action:toplevel#close)}
 end
