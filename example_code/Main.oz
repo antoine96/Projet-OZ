@@ -6,6 +6,11 @@ local
    NObjetNeeded=3 %Nombre d'objets nécessaires par défaut (quand on ne passe pas en argument)
    NAmmo=2 %Nombre de balles par défaut (quand on ne passe pas en argument)
    %TODO RECUPERER LES ARGUMENTS
+<<<<<<< HEAD
+=======
+
+   
+>>>>>>> c8fa9c3f68928a2421328b357c5961a06003ca5f
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%AUTRES
    NObjetTake= 0 %Nb d'objet pris
    NBullets
@@ -250,7 +255,7 @@ local
 	    else
 	       IX = X+DX
 	       IY = Y+DY
-	       if {CheckCase List IX IY Wall}==true then %PAS PASSER DANS LES MURS
+	       if {CheckCase List IX IY Wall}==true then%PAS PASSER DANS LES MURS
 		  {UserCommand T Count X Y LX LY List Nammo Nobjettake}
 	       elseif {CheckCase List IX IY Zombie}==true then
 		  if Nammo==0 then
@@ -276,6 +281,7 @@ local
 								     {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
 								  else
 								     {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
+<<<<<<< HEAD
 							    end
 	       elseif IX==Xporte andthen IY==Yporte then  if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count IX IY LX LY List Nammo Nobjettake}
 							  else {UserCommand finish|nil Count IX IY LX LY List Nammo Nobjettake}
@@ -285,6 +291,19 @@ local
 		  {UserCommand T Count+1 IX IY LX LY List Nammo Nobjettake}
 	       else
 		  {UserCommand T Count X Y LX LY List Nammo Nobjettake}
+=======
+								  end
+		     else if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count X Y LX LY List Nammo Nobjettake}
+			  else  {UserCommand finish|nil Count X Y LX LY List Nammo Nobjettake}
+			  end
+		     end
+		     
+		  else
+		     {DrawBox Floor  X Y}
+		     {DrawBox Brave IX IY}
+		     {UserCommand T Count+1 IX IY LX LY List Nammo Nobjettake}
+		  end
+>>>>>>> c8fa9c3f68928a2421328b357c5961a06003ca5f
 	       end
 	       
 	    end
@@ -310,6 +329,7 @@ local
       NextCommand = {UserCommand Command 0 OldX OldY NewX NewY List NAmmo NObjetTake}
    end
 in
+
    {Window show}
    NbZeros={CountZero Map}
    if NbZeros < NZombies then Lzombies={Trier {ChooseRand NbZeros {List NbZeros} NbZeros}}
@@ -324,6 +344,11 @@ in
    {Canvas create(text 460 10 text:NObjetTake fill:red handle:NObjetT)}
    {Canvas create(text 470 10 text:"/" fill:red)}
     {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
+<<<<<<< HEAD
+=======
+   {Send CommandPort r(0 1)} %% ET SI PORTE PAS EN HAUT?
+
+>>>>>>> c8fa9c3f68928a2421328b357c5961a06003ca5f
    {Game Xbrave Ybrave Command MapList}
    {Window bind(event:"<space>" action:toplevel#close)}
 end
