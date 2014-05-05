@@ -270,11 +270,11 @@ local
 		  {DrawBox Brave IX IY}
 		  if {CheckCase List IX IY Floor}==false then %Ramasser compte pour 1 pas
 		     if{CheckCase List IX IY Bullets}==true then
-			{UserCommand T Count+2 IX IY LX LY List Nammo+1 Nobjettake+1} %gagne une mun si il en ramasse une
+			{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo+1 Nobjettake+1} %gagne une mun si il en ramasse une
 		     elseif{CheckCase List IX IY Medicine}==true then
-			{UserCommand T Count+2 IX IY LX LY List Nammo Nobjettake+1}
+			{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
 		     elseif{CheckCase List IX IY Food}==true then
-			{UserCommand T Count+2 IX IY LX LY List Nammo Nobjettake+1}
+			{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
 		     else if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count X Y LX LY List Nammo Nobjettake}
 			  else {UserCommand finish|nil Count X Y LX LY List Nammo Nobjettake}
 			  end
