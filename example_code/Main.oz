@@ -160,6 +160,9 @@ local
 	 {F close}
       end
    end
+
+
+	 
    %TODO : DOUBLE CONDITION
    fun{RemplirListe Z Zombies}
       fun{RemplirListeAcc Z Ligne Col Zombies Acc2}
@@ -237,6 +240,76 @@ local
       
       {DrawUnits ListToDraw}
    end
+%direction aléatoire
+   fun{ChooseDirection}
+      I=(({Abs {OS.rand}} mod 4) + 1)
+	 if I == 1 then DX=-1 DY=0
+	 elseif I==2 then DX=0 DY=-1
+	 elseif I==3 then DX=1 DY=0
+	 else DX=0 DY=1
+	 end
+	 r(DX DY)
+   end
+   
+         %1=Gauche 2= Bas 3= Droite 4 = Haut
+%%% changeras la liste de zombie avec les nouvelles coordonnée. Idealement faut retirer un zombie quand il meurt, ce quon fais pas.
+   %changeras aussi la listeMap (car ancienne fonction changais image, maintenant ca change les coordonnées)
+   %mais FAUX car ordre de la MAPLIST doit changer du coup
+       fun {UpdateListZombie List X Y XN YN}
+      case List of r(Img Col Ligne)|T then
+	 if Col == X then
+	    if Ligne==Y then
+	       r(Img XN YN)|T
+	    else
+	      r(Img Col Ligne)|{UpdateList T X Y XN YN}
+	    end
+	 else
+	    r(Img Col Ligne)|{UpdateList T X Y XN YN}
+	 end
+      end
+       end
+
+       %%fonction qui ferais bouger un zombie 3x. Sachant que 20% de chance de détruire objet si il en trouve un. Si il le détruit, ca lui coute un mouvement.
+
+       %soucis :  le fait de lui enlever un mouvement quand il bouffe un objet (20%de chance, ca aussi)
+       %
+   fun{ZombieMove X0 Y0 Dir N}
+      DX DY Dir2 IX IY
+   in
+      
+	 DX=Dir.1
+	 DY=Dir.2
+      if(CheckCase MapL X+DX Y+DY Wall)==true then
+	 Dir2={ChooseDirection}
+	 {ZombieMove X0 Y0 Dir2 N}
+      else IX=X0+DX IY=Y0+DY
+      end
+      if(N==0)
+	 r(IX IY) %renvoi la position si a fait tout les mouvements
+      else
+	 %doit faire les mouvements (les montrer aussi)
+      end
+      
+   end
+   
+% Fonction qui ferais bouger tout les zombie un à un.
+   %soucis : gérer les 2 list qui doivent a la fin etre renvoyée mise a jour.
+   fun{Zombie ZombieL MapL  }
+      I Dir NewPos 
+      
+   in
+      
+      case ZombieL of r(Zombie X Y)|T then
+	 Dir={ChooseDirection}
+	 NewPos={ZombieMove X Y Dir 3}
+	 %doit mettre a jour zombielist
+	 %doit mettre a jour Maplist
+	 %rapeler zombie
+	 
+      end
+      end
+
+      
    proc{Game OldX OldY Command List}%APPLIQUE LES REGLES DU JEU
       NewX NewY
       NextCommand
@@ -245,7 +318,7 @@ local
 	 {NBullets set(text:Nammo)}
 	 {NObjetT set(text:Nobjettake)}
 	 case Command of r(DX DY)|T then
-	    if Count == 6 then %2 pas à la fois (sans zombie)
+	    if Count == 6000 then %2 pas à la fois (sans zombie)
 	       {UserCommand T Count X Y  LX LY List Nammo Nobjettake}
 	    else
 	       IX = X+DX
@@ -261,18 +334,18 @@ local
 		     {DrawBox Brave IX IY}
 		     {UserCommand T Count+1 IX IY LX LY {UpdateList List IX IY Floor} Nammo-1 Nobjettake} %perd une munition si tue zombie
 		  end
-	       elseif{CheckCase List IX IY Bullets}==true then if Count<5 then  {DrawBox Floor  X Y}
+	       elseif{CheckCase List IX IY Bullets}==true then if Count<5000 then  {DrawBox Floor  X Y}
 								    {DrawBox Brave IX IY} {UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo+1 Nobjettake}
 								 else
 								    {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
 								 end
 		 %gagne une mun si il en ramasse une
-	       elseif{CheckCase List IX IY Medicine}==true then if Count<5 then  {DrawBox Floor  X Y}
+	       elseif{CheckCase List IX IY Medicine}==true then if Count<5000 then  {DrawBox Floor  X Y}
 									 {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
 								      else
 									 {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
 								      end
-	       elseif{CheckCase List IX IY Food}==true then if Count<5 then  {DrawBox Floor  X Y}
+	       elseif{CheckCase List IX IY Food}==true then if Count<5000 then  {DrawBox Floor  X Y}
 								     {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
 								  else
 								     {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
@@ -323,7 +396,7 @@ in
    {Canvas create(text 410 10 text:"Item needed :" fill:red)}
    {Canvas create(text 460 10 text:NObjetTake fill:red handle:NObjetT)}
    {Canvas create(text 470 10 text:"/" fill:red)}
-    {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
+   {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
    {Game Xbrave Ybrave Command MapList}
    {Window bind(event:"<space>" action:toplevel#close)}
 end
