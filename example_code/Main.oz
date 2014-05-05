@@ -8,7 +8,6 @@ local
    %TODO RECUPERER LES ARGUMENTS
 
    
-   Message="Dead"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%AUTRES
    NObjetTake= 0 %Nb d'objet pris
    NBullets
@@ -249,7 +248,7 @@ local
 	    else
 	       IX = X+DX
 	       IY = Y+DY
-	       if {CheckCase List IX IY Wall}==true then %PAS PASSER DANS LES MURS
+	       if {CheckCase List IX IY Wall}==true then%PAS PASSER DANS LES MURS
 		  {UserCommand T Count X Y LX LY List Nammo Nobjettake}
 	       elseif {CheckCase List IX IY Zombie}==true then
 		  
@@ -284,7 +283,7 @@ local
 								     {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
 								  end
 		     else if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count X Y LX LY List Nammo Nobjettake}
-			  else {UserCommand finish|nil Count X Y LX LY List Nammo Nobjettake}
+			  else  {UserCommand finish|nil Count X Y LX LY List Nammo Nobjettake}
 			  end
 		     end
 		     
@@ -319,6 +318,7 @@ local
       NextCommand = {UserCommand Command 0 OldX OldY NewX NewY List NAmmo NObjetTake}
    end
 in
+
    {Window show}
    NbZeros={CountZero Map}
    if NbZeros < NZombies then Lzombies={Trier {ChooseRand NbZeros {List NbZeros} NbZeros}}
@@ -333,7 +333,8 @@ in
    {Canvas create(text 460 10 text:NObjetTake fill:red handle:NObjetT)}
    {Canvas create(text 470 10 text:"/" fill:red)}
     {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
-   {Send CommandPort r(0 1)}
+   {Send CommandPort r(0 1)} %% ET SI PORTE PAS EN HAUT?
+
    {Game Xbrave Ybrave Command MapList}
    {Window bind(event:"<space>" action:toplevel#close)}
 end
