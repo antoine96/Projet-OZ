@@ -12,6 +12,7 @@ local
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%AUTRES
    NObjetTake= 0 %Nb d'objet pris
    NBullets
+   NObjetT
    TailleCase=40 %Taille d'une case de la map
    NbZeros %Nombre d'espaces vides dans la map
    Lzombies %Liste des cases ou on mettra des zombies
@@ -241,8 +242,9 @@ local
       fun{UserCommand Command Count X Y LX LY List Nammo Nobjettake}
 	 IX IY in
 	 {NBullets set(text:Nammo)}
+	 {NObjetT set(text:Nobjettake)}
 	 case Command of r(DX DY)|T then
-	    if Count == 2 then %2 pas à la fois (sans zombie)
+	    if Count == 200 then %2 pas à la fois (sans zombie)
 	       {UserCommand T Count X Y  LX LY List Nammo Nobjettake}
 	    else
 	       IX = X+DX
@@ -317,6 +319,10 @@ in
    {InitLayout MapList}
    {Canvas create(text 55 10 text:"Number of bullets :" fill:red)}
    {Canvas create(text 125 10 text:NAmmo fill:red handle:NBullets)}
+   {Canvas create(text 410 10 text:"Item needed :" fill:red)}
+   {Canvas create(text 460 10 text:NObjetTake fill:red handle:NObjetT)}
+   {Canvas create(text 470 10 text:"/" fill:red)}
+    {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
    {Send CommandPort r(0 1)}
    {Game Xbrave Ybrave Command MapList}
    {Window bind(event:"<space>" action:toplevel#close)}
