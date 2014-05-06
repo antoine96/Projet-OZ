@@ -109,10 +109,11 @@ local
    in
       {CountZero Map 0 1}
    end
+   %LISTE FINIT TOUJOURS SUR NIL APPAREMMENT
    fun {CheckCase List X Y Image}
       case List of nil then Image=='Floor'
       []r(Img Col Ligne)|T then
-	 if Col == X then
+	 if Col==X then
 	    if Ligne==Y then Image==Img
 	    else
 	       {CheckCase T X Y Image}
@@ -257,7 +258,7 @@ local
    %mais FAUX car ordre de la MAPLIST doit changer du coup : POURQUOI ? AUCUNE RELATION D'ORDRE DANS LA MAPLIST JE CROIS
    fun {UpdateListZombie List X Y XN YN}
       case List of r(Img Col Ligne)|T then
-	 if Col == X then
+	 if Col==X then
 	    if Ligne==Y then
 	       r(Img XN YN)|T
 	    else
@@ -270,22 +271,28 @@ local
    end
 %ON NE VA FAIRE QU'UN MOUVEMENT 
    fun{ZombieMove X0 Y0 Dir Liste N}
-      {Delay 500}
-      if N==0 then Liste
-      else
-	 if{CheckCase Liste X0+Dir.1 Y0+Dir.2 Wall}==true then {Browse 1}{ZombieMove X0 Y0 {ChooseDirection} Liste N}
+      local
+	 XNew
+	 YNew
+      in
+	 {Delay 1000}
+	 if N==0 then Liste
 	 else
-	    {DrawBox Floor X0 Y0}
-	    {DrawBox Zombie X0+Dir.1 Y0+Dir.2}
-	    {ZombieMove X0+Dir.1 Y0+Dir.2 Dir {UpdateListZombie Liste X0 Y0 X0+Dir.1 Y0+Dir.2} N-1}
+	    XNew=X0+Dir.1
+	    YNew=Y0+Dir.2
+	    if({CheckCase Liste XNew YNew Wall}==true) then {ZombieMove X0 Y0 {ChooseDirection} Liste N} %LE CHECKCASE FOIRE ICI
+	    else
+	       {DrawBox Floor X0 Y0}
+	       {DrawBox Zombie XNew YNew}
+	       {ZombieMove XNew YNew Dir {UpdateListZombie Liste X0 Y0 XNew YNew} N-1}
+	    end
 	 end
       end
    end
-% Fonction qui ferais bouger tout les zombie un à un.
-   %soucis : gérer les 2 list qui doivent a la fin etre renvoyée mise a jour.
+   %SELECTIONNE JUSTE LES ZOMBIES DONC LE BUG NE VIENT PAS DE LA
    fun{ZombieFun MapListe}
       case MapListe of nil then nil
-      [] r(Img X Y)|T then if {CheckCase MapListe X Y Zombie}==true then {ZombieMove X Y {ChooseDirection} MapListe 3}|{ZombieFun T}
+      [] r(Img X Y)|T then if {CheckCase MapListe X Y Zombie}==true then {ZombieMove X Y {ChooseDirection} MapListe 15}|{ZombieFun T}
 			   else
 			      MapListe.1|{ZombieFun MapListe.2}
 			   end
@@ -384,8 +391,7 @@ in
    {Canvas create(text 460 10 text:NObjetTake fill:red handle:NObjetT)}
    {Canvas create(text 470 10 text:"/" fill:red)}
    {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
-   {Browse MapList}
    thread L1={ZombieFun MapList} end
-   thread {Game Xbrave Ybrave Command L1} end
+   %{Game Xbrave Ybrave Command MapList}
    {Window bind(event:"<space>" action:toplevel#close)}
 end
