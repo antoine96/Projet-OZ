@@ -2,7 +2,7 @@ local
    QTk
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RECUPERATION DES ARGUMENTS
-   NZombies=15 %Nombre de zombies par défaut (quand on ne passe pas en argument)
+   NZombies=3 %Nombre de zombies par défaut (quand on ne passe pas en argument)
    NObjetNeeded=3 %Nombre d'objets nécessaires par défaut (quand on ne passe pas en argument)
    NAmmo=2 %Nombre de balles par défaut (quand on ne passe pas en argument)
    %TODO RECUPERER LES ARGUMENTS
@@ -12,6 +12,7 @@ local
    NObjetT
    Xporte
    Yporte
+   L1
    TailleCase=40 %Taille d'une case de la map
    NbZeros %Nombre d'espaces vides dans la map
    Lzombies %Liste des cases ou on mettra des zombies
@@ -122,20 +123,20 @@ local
       end
    end
 
-       fun {UpdateList List X Y Image}
+   fun {UpdateList List X Y Image}
       case List of r(Img Col Ligne)|T then
 	 if Col == X then
 	    if Ligne==Y then
 	       r(Image Col Ligne)|T
 	    else
-	      r(Img Col Ligne)|{UpdateList T X Y Image}
+	       r(Img Col Ligne)|{UpdateList T X Y Image}
 	    end
 	 else
 	    r(Img Col Ligne)|{UpdateList T X Y Image}
 	 end
       end
-       end
-       
+   end
+   
    fun{MaxWidth Z}
       fun{MaxWidthAcc Z Acc Max}
 	 if (Acc-1)=={Width Z} then Max
@@ -160,9 +161,9 @@ local
 	 {F close}
       end
    end
-
-
-	 
+   
+   
+   
    %TODO : DOUBLE CONDITION
    fun{RemplirListe Z Zombies}
       fun{RemplirListeAcc Z Ligne Col Zombies Acc2}
@@ -242,74 +243,60 @@ local
    end
 %direction aléatoire
    fun{ChooseDirection}
-      I=(({Abs {OS.rand}} mod 4) + 1)
-	 if I == 1 then DX=-1 DY=0
-	 elseif I==2 then DX=0 DY=-1
+      local I DX DY in
+	 I =(({Abs {OS.rand}} mod 4) + 1)
+	 if I == 1 then DX=~1 DY=0
+	 elseif I==2 then DX=0 DY=~1
 	 elseif I==3 then DX=1 DY=0
 	 else DX=0 DY=1
 	 end
 	 r(DX DY)
+     end
    end
-   
-         %1=Gauche 2= Bas 3= Droite 4 = Haut
-%%% changeras la liste de zombie avec les nouvelles coordonnée. Idealement faut retirer un zombie quand il meurt, ce quon fais pas.
-   %changeras aussi la listeMap (car ancienne fonction changais image, maintenant ca change les coordonnées)
-   %mais FAUX car ordre de la MAPLIST doit changer du coup
-       fun {UpdateListZombie List X Y XN YN}
+   %Idealement faut retirer un zombie quand il meurt, ce quon fais pas. ON VA FAIRE UNE FONCTION POUR CA QU'ON APPELERA DANS GAME ; IZI WIN
+   %mais FAUX car ordre de la MAPLIST doit changer du coup : POURQUOI ? AUCUNE RELATION D'ORDRE DANS LA MAPLIST JE CROIS
+   fun {UpdateListZombie List X Y XN YN}
       case List of r(Img Col Ligne)|T then
 	 if Col == X then
 	    if Ligne==Y then
 	       r(Img XN YN)|T
 	    else
-	      r(Img Col Ligne)|{UpdateList T X Y XN YN}
+	       List.1|{UpdateListZombie T X Y XN YN}
 	    end
 	 else
-	    r(Img Col Ligne)|{UpdateList T X Y XN YN}
+	    List.1|{UpdateListZombie T X Y XN YN}
 	 end
       end
-       end
-
-       %%fonction qui ferais bouger un zombie 3x. Sachant que 20% de chance de détruire objet si il en trouve un. Si il le détruit, ca lui coute un mouvement.
-
-       %soucis :  le fait de lui enlever un mouvement quand il bouffe un objet (20%de chance, ca aussi)
-       %
-   fun{ZombieMove X0 Y0 Dir N}
-      DX DY Dir2 IX IY
-   in
-      
-	 DX=Dir.1
-	 DY=Dir.2
-      if(CheckCase MapL X+DX Y+DY Wall)==true then
-	 Dir2={ChooseDirection}
-	 {ZombieMove X0 Y0 Dir2 N}
-      else IX=X0+DX IY=Y0+DY
-      end
-      if(N==0)
-	 r(IX IY) %renvoi la position si a fait tout les mouvements
-      else
-	 %doit faire les mouvements (les montrer aussi)
-      end
-      
    end
-   
+%ON NE VA FAIRE QU'UN MOUVEMENT 
+   fun{ZombieMove X0 Y0 Dir Liste N}
+      {Delay 500}
+      if N==0 then Liste
+      else
+	 if{CheckCase Liste X0+Dir.1 Y0+Dir.2 Wall}==true then {Browse 1}{ZombieMove X0 Y0 {ChooseDirection} Liste N}
+	 else
+	    {DrawBox Floor X0 Y0}
+	    {DrawBox Zombie X0+Dir.1 Y0+Dir.2}
+	    {ZombieMove X0+Dir.1 Y0+Dir.2 Dir {UpdateListZombie Liste X0 Y0 X0+Dir.1 Y0+Dir.2} N-1}
+	 end
+      end
+   end
 % Fonction qui ferais bouger tout les zombie un à un.
    %soucis : gérer les 2 list qui doivent a la fin etre renvoyée mise a jour.
-   fun{Zombie ZombieL MapL  }
-      I Dir NewPos 
-      
-   in
-      
-      case ZombieL of r(Zombie X Y)|T then
-	 Dir={ChooseDirection}
-	 NewPos={ZombieMove X Y Dir 3}
-	 %doit mettre a jour zombielist
-	 %doit mettre a jour Maplist
-	 %rapeler zombie
+   fun{ZombieFun MapListe}
+      case MapListe of nil then nil
+      [] r(Img X Y)|T then if {CheckCase MapListe X Y Zombie}==true then {ZombieMove X Y {ChooseDirection} MapListe 3}|{ZombieFun T}
+			   else
+			      MapListe.1|{ZombieFun MapListe.2}
+			   end
 	 
+      else MapListe.1|{ZombieFun MapListe.2}
       end
-      end
-
+   end
+   
       
+
+   %IL FAUT QUE GAME RENVOIT LA LISTE MODIFIEE QUAND ON A FINI NOS 3 TOURS
    proc{Game OldX OldY Command List}%APPLIQUE LES REGLES DU JEU
       NewX NewY
       NextCommand
@@ -397,6 +384,8 @@ in
    {Canvas create(text 460 10 text:NObjetTake fill:red handle:NObjetT)}
    {Canvas create(text 470 10 text:"/" fill:red)}
    {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
-   {Game Xbrave Ybrave Command MapList}
+   {Browse MapList}
+   thread L1={ZombieFun MapList} end
+   thread {Game Xbrave Ybrave Command L1} end
    {Window bind(event:"<space>" action:toplevel#close)}
 end
