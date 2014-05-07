@@ -2,7 +2,7 @@ local
    QTk
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RECUPERATION DES ARGUMENTS
-   NZombies=1 %Nombre de zombies par défaut (quand on ne passe pas en argument)
+   NZombies=3 %Nombre de zombies par défaut (quand on ne passe pas en argument)
    NObjetNeeded=3 %Nombre d'objets nécessaires par défaut (quand on ne passe pas en argument)
    NAmmo=2 %Nombre de balles par défaut (quand on ne passe pas en argument)
    %TODO RECUPERER LES ARGUMENTS
@@ -211,9 +211,6 @@ local
       {RemplirListeAcc Z 1 1 Zombies 1}
    end
    Map={LoadPickle CD#'/map_test.ozp'}
-   %Map=map(r(1 1 1 1 1 1)
-%	   r(1 0 0 0 0 1)
-%	   r(1 1 1 1 1 1))
    LargeurMax={MaxWidth Map}
    HauteurMax={Width Map}
    Desc=td(title:"Zombieland" canvas(
@@ -259,42 +256,56 @@ local
    end
    %Idealement faut retirer un zombie quand il meurt, ce quon fais pas. ON VA FAIRE UNE FONCTION POUR CA QU'ON APPELERA DANS GAME ; IZI WIN
    %mais FAUX car ordre de la MAPLIST doit changer du coup : POURQUOI ? AUCUNE RELATION D'ORDRE DANS LA MAPLIST JE CROIS
-   fun {UpdateListZombie List X Y Img}
-      case List of nil then nil
-      [] r(Image Col Ligne)|T then
+   fun {UpdateListZombie List X Y XN YN}
+      case List of r(Img Col Ligne)|T then
 	 if Col==X then
-	    if Ligne== Y then r(Img X Y)|{UpdateListZombie T X Y Img}
+	    if Ligne==Y then
+	       r(Img XN YN)|T
 	    else
-	       List.1|{UpdateListZombie T X Y Img}
+	       List.1|{UpdateListZombie T X Y XN YN}
 	    end
 	 else
-	    List.1|{UpdateListZombie T X Y Img}
+	    List.1|{UpdateListZombie T X Y XN YN}
 	 end
       end
    end
-   
 %ON NE VA FAIRE QU'UN MOUVEMENT 
    fun{ZombieMove X0 Y0 Dir Liste N}
       local
 	 XNew
 	 YNew
       in
-	 {Delay 100}
-	 if N==0 then r(Zombie X0 Y0)
+	 {Delay 1000}
+	 if N==0 then Liste
 	 else
 	    XNew=X0+Dir.1
 	    YNew=Y0+Dir.2
-	    if({CheckCase Liste XNew YNew Wall}==true) then {ZombieMove X0 Y0 {ChooseDirection} Liste N} %LE CHECKCASE FOIRE ICI
+	    if{CheckCase Liste XNew YNew Floor}==false then
+	       if {CheckCase Liste XNew YNew Wall}==false then
+		  if {CheckCase Liste XNew YNew Zombie}==false then %cas ou cest objet, faut 20% de chance de ramasser, sinon changedirection
+		     {DrawBox Floor X0 Y0}
+		     {DrawBox Zombie XNew YNew}
+		     local L in
+			L={UpdateList Liste X0 Y0 Floor}
+			{ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-2}
+		     end
+		  else
+		     {ZombieMove X0 Y0 {ChooseDirection} Liste N}
+		  end
+		  
+	       else
+		  {ZombieMove X0 Y0 {ChooseDirection} Liste N} %LE CHECKCASE FOIRE ICI
+	       end
+	       
 	    else
 	       {DrawBox Floor X0 Y0}
 	       {DrawBox Zombie XNew YNew}
-	       local
-		  L L2
-	       in 
-		  L={UpdateListZombie Liste XNew YNew Zombie}
-		  L2={UpdateListZombie L X0 Y0 Floor}
-		  {ZombieMove XNew YNew Dir L2 N-1}
+	       local L in
+		  L={UpdateList Liste X0 Y0 Floor}
+		  {ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-1}
 	       end
+	       
+	      
 	    end
 	 end
       end
@@ -302,12 +313,12 @@ local
    %SELECTIONNE JUSTE LES ZOMBIES DONC LE BUG NE VIENT PAS DE LA
    fun{ZombieFun MapListe}
       case MapListe of nil then nil
-      [] r(Img X Y)|T then if {CheckCase MapListe X Y Zombie}==true then {ZombieMove X Y {ChooseDirection} MapListe 15}|{ZombieFun T}
+      [] r(Img X Y)|T then if {CheckCase MapListe X Y Zombie}==true then {ZombieFun {ZombieMove X Y {ChooseDirection} MapListe 15}}
 			   else
 			      MapListe.1|{ZombieFun MapListe.2}
 			   end
 	 
-      else MapListe.1|{ZombieFun MapListe.2}
+     % else MapListe.1|{ZombieFun MapListe.2}
       end
    end
    
@@ -394,7 +405,6 @@ in
       Lzombies= {Trier {ChooseRand NZombies {List NbZeros} NbZeros}}
    end
    MapList={RemplirListe Map Lzombies}
-   %{Browse MapList}
    {InitLayout MapList}
    {Canvas create(text 55 10 text:"Number of bullets :" fill:red)}
    {Canvas create(text 125 10 text:NAmmo fill:red handle:NBullets)}
@@ -402,6 +412,7 @@ in
    {Canvas create(text 460 10 text:NObjetTake fill:red handle:NObjetT)}
    {Canvas create(text 470 10 text:"/" fill:red)}
    {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
+
    L1={ZombieFun MapList}
    %{Game Xbrave Ybrave Command MapList}
    {Window bind(event:"<space>" action:toplevel#close)}
