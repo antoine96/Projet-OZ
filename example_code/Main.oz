@@ -13,6 +13,7 @@ local
    Xporte
    Yporte
    L1
+   LZ %Coordonnées Zombie
    TailleCase=40 %Taille d'une case de la map
    NbZeros %Nombre d'espaces vides dans la map
    Lzombies %Liste des cases ou on mettra des zombies
@@ -163,6 +164,16 @@ local
       end
    end
    
+   fun{ListZombie MapList}
+      case MapList of nil then nil
+      []r(Img X Y)|T then
+	 if Img==Zombie then
+	    r(X Y)|{ListZombie T}
+	 else
+	    {ListZombie T}
+	 end
+      end
+   end
    
    
    %TODO : DOUBLE CONDITION
@@ -181,7 +192,8 @@ local
 		 if (Z.Ligne.Col)==0 then
 		    if Zombies==nil then r(Floor Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2+1}
 		    else
-		       if Acc2==Zombies.1 then 
+		       if Acc2==Zombies.1 then
+			     
 			  r(Zombie Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies.2 Acc2+1}
 		       else
 			  r(Floor Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2+1}
@@ -257,10 +269,10 @@ local
    %Idealement faut retirer un zombie quand il meurt, ce quon fais pas. ON VA FAIRE UNE FONCTION POUR CA QU'ON APPELERA DANS GAME ; IZI WIN
    %mais FAUX car ordre de la MAPLIST doit changer du coup : POURQUOI ? AUCUNE RELATION D'ORDRE DANS LA MAPLIST JE CROIS
    fun {UpdateListZombie List X Y XN YN}
-      case List of r(Img Col Ligne)|T then
+      case List of r(Col Ligne)|T then
 	 if Col==X then
 	    if Ligne==Y then
-	       r(Img XN YN)|T
+	       r(XN YN)|T
 	    else
 	       List.1|{UpdateListZombie T X Y XN YN}
 	    end
@@ -270,31 +282,46 @@ local
       end
    end
 %ON NE VA FAIRE QU'UN MOUVEMENT 
-   fun{ZombieMove X0 Y0 Dir Liste N}
+   fun{ZombieMove X0 Y0 Dir Liste N LZ}
       local
 	 XNew
 	 YNew
       in
 	 {Delay 1000}
-	 if N==0 then Liste
+	 if N=<0 then Liste#LZ
 	 else
 	    XNew=X0+Dir.1
 	    YNew=Y0+Dir.2
 	    if{CheckCase Liste XNew YNew Floor}==false then
 	       if {CheckCase Liste XNew YNew Wall}==false then
 		  if {CheckCase Liste XNew YNew Zombie}==false then %cas ou cest objet, faut 20% de chance de ramasser, sinon changedirection
-		     {DrawBox Floor X0 Y0}
-		     {DrawBox Zombie XNew YNew}
-		     local L in
-			L={UpdateList Liste X0 Y0 Floor}
-			{ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-2}
-		     end
+
+
+			if N=<1 then
+			   {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ}
+			else
+			   local Luck in
+			      Luck=(({Abs {OS.rand}} mod 4) + 1)
+			      if Luck==3 then
+				 {DrawBox Floor X0 Y0}
+				 {DrawBox Zombie XNew YNew}
+				 local L in
+				    L={UpdateList Liste X0 Y0 Floor}
+				    {ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-2 {UpdateListZombie LZ X0 Y0 XNew YNew}}
+				 end
+			      else
+				 {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ}
+			      end
+			   end
+			      
+			end
+		     
 		  else
-		     {ZombieMove X0 Y0 {ChooseDirection} Liste N}
+		     {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ}
 		  end
 		  
 	       else
-		  {ZombieMove X0 Y0 {ChooseDirection} Liste N} %LE CHECKCASE FOIRE ICI
+		  {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ} %LE CHECKCASE FOIRE ICI
 	       end
 	       
 	    else
@@ -302,7 +329,7 @@ local
 	       {DrawBox Zombie XNew YNew}
 	       local L in
 		  L={UpdateList Liste X0 Y0 Floor}
-		  {ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-1}
+		  {ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-1 {UpdateListZombie LZ X0 Y0 XNew YNew}}
 	       end
 	       
 	      
@@ -311,14 +338,16 @@ local
       end
    end
    %SELECTIONNE JUSTE LES ZOMBIES DONC LE BUG NE VIENT PAS DE LA
-   fun{ZombieFun MapListe}
-      case MapListe of nil then nil
-      [] r(Img X Y)|T then if {CheckCase MapListe X Y Zombie}==true then {ZombieFun {ZombieMove X Y {ChooseDirection} MapListe 15}}
-			   else
-			      MapListe.1|{ZombieFun MapListe.2}
-			   end
+   fun{ZombieFun MapListe ZombieL ZombieUpd}
+      case ZombieL of nil then MapListe
+      [] r(X Y)|T then
+	 local R in
+	    R={ZombieMove X Y {ChooseDirection} MapListe 3 ZombieUpd}
+
+	    {ZombieFun R.1 T R.2}
+
+	 end
 	 
-     % else MapListe.1|{ZombieFun MapListe.2}
       end
    end
    
@@ -333,8 +362,12 @@ local
 	 {NBullets set(text:Nammo)}
 	 {NObjetT set(text:Nobjettake)}
 	 case Command of r(DX DY)|T then
-	    if Count == 6000 then %2 pas à la fois (sans zombie)
-	       {UserCommand T Count X Y  LX LY List Nammo Nobjettake}
+	    if Count == 2 then %2 pas à la fois (sans zombie)
+	       local LZombie R in
+		  LZombie={ListZombie List}
+		  R= {ZombieFun List LZombie LZombie}
+		  {UserCommand T 0 X Y  LX LY R Nammo Nobjettake}
+	       end
 	    else
 	       IX = X+DX
 	       IY = Y+DY
@@ -349,21 +382,21 @@ local
 		     {DrawBox Brave IX IY}
 		     {UserCommand T Count+1 IX IY LX LY {UpdateList List IX IY Floor} Nammo-1 Nobjettake} %perd une munition si tue zombie
 		  end
-	       elseif{CheckCase List IX IY Bullets}==true then if Count<5000 then  {DrawBox Floor  X Y}
-								    {DrawBox Brave IX IY} {UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo+1 Nobjettake}
-								 else
-								    {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
-								 end
+	       elseif{CheckCase List IX IY Bullets}==true then if Count<1 then  {DrawBox Floor  X Y}
+								  {DrawBox Brave IX IY} {UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo+1 Nobjettake+1}
+							       else
+								  {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
+							       end
 		 %gagne une mun si il en ramasse une
-	       elseif{CheckCase List IX IY Medicine}==true then if Count<5000 then  {DrawBox Floor  X Y}
-									 {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
-								      else
-									 {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
-								      end
-	       elseif{CheckCase List IX IY Food}==true then if Count<5000 then  {DrawBox Floor  X Y}
-								     {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
-								  else
-								     {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
+	       elseif{CheckCase List IX IY Medicine}==true then if Count<1 then  {DrawBox Floor  X Y}
+								   {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
+								else
+								   {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
+								end
+	       elseif{CheckCase List IX IY Food}==true then if Count<1 then  {DrawBox Floor  X Y}
+							       {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
+							    else
+							       {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
 							    end
 	       elseif IX==Xporte andthen IY==Yporte then  if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count IX IY LX LY List Nammo Nobjettake}
 							  else {UserCommand finish|nil Count IX IY LX LY List Nammo Nobjettake}
@@ -412,8 +445,8 @@ in
    {Canvas create(text 460 10 text:NObjetTake fill:red handle:NObjetT)}
    {Canvas create(text 470 10 text:"/" fill:red)}
    {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
-
-   L1={ZombieFun MapList}
-   %{Game Xbrave Ybrave Command MapList}
+  % LZ={ListZombie MapList}
+  % L1={ZombieFun MapList LZ LZ}
+   {Game Xbrave Ybrave Command MapList}
    {Window bind(event:"<space>" action:toplevel#close)}
 end
