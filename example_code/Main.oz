@@ -344,7 +344,7 @@ local
 	 local R in
 	    R={ZombieMove X Y {ChooseDirection} MapListe 3 ZombieUpd C}
 
-	    {ZombieFun R.1 T R.2}
+	    {ZombieFun R.1 T R.2 C}
 
 	 end
 	 
