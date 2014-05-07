@@ -282,12 +282,12 @@ local
       end
    end
 %ON NE VA FAIRE QU'UN MOUVEMENT 
-   fun{ZombieMove X0 Y0 Dir Liste N LZ}
+   fun{ZombieMove X0 Y0 Dir Liste N LZ C}
       local
 	 XNew
 	 YNew
       in
-	 {Delay 1000}
+	 {Delay 100}
 	 if N=<0 then Liste#LZ
 	 else
 	    XNew=X0+Dir.1
@@ -296,32 +296,32 @@ local
 	       if {CheckCase Liste XNew YNew Wall}==false then
 		  if {CheckCase Liste XNew YNew Zombie}==false then %cas ou cest objet, faut 20% de chance de ramasser, sinon changedirection
 
-
-			if N=<1 then
-			   {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ}
-			else
-			   local Luck in
-			      Luck=(({Abs {OS.rand}} mod 4) + 1)
-			      if Luck==3 then
-				 {DrawBox Floor X0 Y0}
-				 {DrawBox Zombie XNew YNew}
-				 local L in
-				    L={UpdateList Liste X0 Y0 Floor}
-				    {ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-2 {UpdateListZombie LZ X0 Y0 XNew YNew}}
-				 end
-			      else
-				 {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ}
+		     
+		     if N=<1 then
+			{ZombieMove X0 Y0 {ChooseDirection} Liste N LZ C}
+		     else
+			local Luck in
+			   Luck=(({Abs {OS.rand}} mod 5) + 1)
+			   if Luck==3 then
+			      {DrawBox Floor X0 Y0}
+			      {DrawBox Zombie XNew YNew}
+			      local L in
+				 L={UpdateList Liste X0 Y0 Floor}
+				 {ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-2 {UpdateListZombie LZ X0 Y0 XNew YNew} C}
 			      end
+			   else
+			      {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ C}
 			   end
-			      
 			end
+			
+		     end
 		     
 		  else
-		     {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ}
+		     {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ C}
 		  end
 		  
 	       else
-		  {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ} %LE CHECKCASE FOIRE ICI
+		  {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ C} %LE CHECKCASE FOIRE ICI
 	       end
 	       
 	    else
@@ -329,7 +329,7 @@ local
 	       {DrawBox Zombie XNew YNew}
 	       local L in
 		  L={UpdateList Liste X0 Y0 Floor}
-		  {ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-1 {UpdateListZombie LZ X0 Y0 XNew YNew}}
+		  {ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-1 {UpdateListZombie LZ X0 Y0 XNew YNew} C}
 	       end
 	       
 	      
@@ -338,11 +338,11 @@ local
       end
    end
    %SELECTIONNE JUSTE LES ZOMBIES DONC LE BUG NE VIENT PAS DE LA
-   fun{ZombieFun MapListe ZombieL ZombieUpd}
+   fun{ZombieFun MapListe ZombieL ZombieUpd C}
       case ZombieL of nil then MapListe
       [] r(X Y)|T then
 	 local R in
-	    R={ZombieMove X Y {ChooseDirection} MapListe 3 ZombieUpd}
+	    R={ZombieMove X Y {ChooseDirection} MapListe 3 ZombieUpd C}
 
 	    {ZombieFun R.1 T R.2}
 
@@ -363,9 +363,10 @@ local
 	 {NObjetT set(text:Nobjettake)}
 	 case Command of r(DX DY)|T then
 	    if Count == 2 then %2 pas à la fois (sans zombie)
-	       local LZombie R in
+	       local LZombie R C in
+		  C=r(X Y)
 		  LZombie={ListZombie List}
-		  R= {ZombieFun List LZombie LZombie}
+		  R= {ZombieFun List LZombie LZombie C}
 		  {UserCommand T 0 X Y  LX LY R Nammo Nobjettake}
 	       end
 	    else
