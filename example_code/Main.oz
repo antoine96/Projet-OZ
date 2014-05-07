@@ -280,11 +280,32 @@ local
 	 else
 	    XNew=X0+Dir.1
 	    YNew=Y0+Dir.2
-	    if({CheckCase Liste XNew YNew Wall}==true) then {ZombieMove X0 Y0 {ChooseDirection} Liste N} %LE CHECKCASE FOIRE ICI
+	    if{CheckCase Liste XNew YNew Floor}==false then
+	       if {CheckCase Liste XNew YNew Wall}==false then
+		  if {CheckCase Liste XNew YNew Zombie}==false then %cas ou cest objet, faut 20% de chance de ramasser, sinon changedirection
+		     {DrawBox Floor X0 Y0}
+		     {DrawBox Zombie XNew YNew}
+		     local L in
+			L={UpdateList Liste X0 Y0 Floor}
+			{ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-2}
+		     end
+		  else
+		     {ZombieMove X0 Y0 {ChooseDirection} Liste N}
+		  end
+		  
+	       else
+		  {ZombieMove X0 Y0 {ChooseDirection} Liste N} %LE CHECKCASE FOIRE ICI
+	       end
+	       
 	    else
 	       {DrawBox Floor X0 Y0}
 	       {DrawBox Zombie XNew YNew}
-	       {ZombieMove XNew YNew Dir {UpdateListZombie Liste X0 Y0 XNew YNew} N-1}
+	       local L in
+		  L={UpdateList Liste X0 Y0 Floor}
+		  {ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-1}
+	       end
+	       
+	      
 	    end
 	 end
       end
@@ -292,12 +313,12 @@ local
    %SELECTIONNE JUSTE LES ZOMBIES DONC LE BUG NE VIENT PAS DE LA
    fun{ZombieFun MapListe}
       case MapListe of nil then nil
-      [] r(Img X Y)|T then if {CheckCase MapListe X Y Zombie}==true then {ZombieMove X Y {ChooseDirection} MapListe 15}|{ZombieFun T}
+      [] r(Img X Y)|T then if {CheckCase MapListe X Y Zombie}==true then {ZombieFun {ZombieMove X Y {ChooseDirection} MapListe 15}}
 			   else
 			      MapListe.1|{ZombieFun MapListe.2}
 			   end
 	 
-      else MapListe.1|{ZombieFun MapListe.2}
+     % else MapListe.1|{ZombieFun MapListe.2}
       end
    end
    
@@ -391,7 +412,8 @@ in
    {Canvas create(text 460 10 text:NObjetTake fill:red handle:NObjetT)}
    {Canvas create(text 470 10 text:"/" fill:red)}
    {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
-   thread L1={ZombieFun MapList} end
+
+   L1={ZombieFun MapList}
    %{Game Xbrave Ybrave Command MapList}
    {Window bind(event:"<space>" action:toplevel#close)}
 end
