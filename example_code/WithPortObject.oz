@@ -2,7 +2,7 @@ local
    QTk
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RECUPERATION DES ARGUMENTS
-   NZombies=3 %Nombre de zombies par défaut (quand on ne passe pas en argument)
+   NZombies=5 %Nombre de zombies par défaut (quand on ne passe pas en argument)
    NObjetNeeded=3 %Nombre d'objets nécessaires par défaut (quand on ne passe pas en argument)
    NAmmo=2 %Nombre de balles par défaut (quand on ne passe pas en argument)
    %TODO RECUPERER LES ARGUMENTS
@@ -25,6 +25,8 @@ local
    Xbrave %La position horizontale du brave
    Ybrave %La position verticale du brave
    Command % le port
+   CommandZombie
+   CommandZombiePort
    CommandPort = {NewPort Command}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHARGEMENT DES IMAGES
    CD = {OS.getCWD}
@@ -254,200 +256,167 @@ local
       
       {DrawUnits ListToDraw}
    end
-%direction aléatoire
-   fun{ChooseDirection}
-      local I DX DY in
-	 I =(({Abs {OS.rand}} mod 4) + 1)
-	 if I == 1 then DX=~1 DY=0
-	 elseif I==2 then DX=0 DY=~1
-	 elseif I==3 then DX=1 DY=0
-	 else DX=0 DY=1
-	 end
-	 r(DX DY)
-     end
+   proc{BuildZombiePort N ?S ?P}
+      S={MakeTuple s N}
+      P={MakeTuple p N}
+      for I in 1..N do
+	 P.I={NewPort S.I}
+      end
    end
-   %Idealement faut retirer un zombie quand il meurt, ce quon fais pas. ON VA FAIRE UNE FONCTION POUR CA QU'ON APPELERA DANS GAME ; IZI WIN
-   %mais FAUX car ordre de la MAPLIST doit changer du coup : POURQUOI ? AUCUNE RELATION D'ORDRE DANS LA MAPLIST JE CROIS
-   fun {UpdateListZombie List X Y XN YN}
-      case List of r(Col Ligne)|T then
-	 if Col==X then
-	    if Ligne==Y then
-	       r(XN YN)|T
-	    else
-	       List.1|{UpdateListZombie T X Y XN YN}
+   {BuildZombiePort NZombies CommandZombie CommandZombiePort}
+   proc{ChooseDirection N}
+      for J in 1..N do
+	 local I in
+	    I =(({Abs {OS.rand}} mod 4) + 1)
+	    if I == 1 then {Send CommandZombiePort.J r(~1 0)}
+	    elseif I==2 then  {Send CommandZombiePort.J r(0 ~1)}
+	    elseif I==3 then  {Send CommandZombiePort.J r(1 0)}
+	    else  {Send CommandZombiePort.J r(0 1)}
 	    end
-	 else
-	    List.1|{UpdateListZombie T X Y XN YN}
 	 end
       end
    end
-%ON NE VA FAIRE QU'UN MOUVEMENT 
-   fun{ZombieMove X0 Y0 Dir Liste N LZ C}
-      local
-	 XNew
-	 YNew
-      in
-	 {Delay 100}
-	 if N=<0 then Liste#LZ
-	 else
-	    XNew=X0+Dir.1
-	    YNew=Y0+Dir.2
-	    if{CheckCase Liste XNew YNew Floor}==false then
-	       if {CheckCase Liste XNew YNew Wall}==false then
-		  if {CheckCase Liste XNew YNew Zombie}==false then %cas ou cest objet, faut 20% de chance de ramasser, sinon changedirection
-
-		     
-		     if N=<1 then
-			{ZombieMove X0 Y0 {ChooseDirection} Liste N LZ C}
-		     else
-			local Luck in
-			   Luck=(({Abs {OS.rand}} mod 5) + 1)
-			   if Luck==3 then
-			      {DrawBox Floor X0 Y0}
-			      {DrawBox Zombie XNew YNew}
-			      local L in
-				 L={UpdateList Liste X0 Y0 Floor}
-				 {ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-2 {UpdateListZombie LZ X0 Y0 XNew YNew} C}
-			      end
-			   else
-			      {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ C}
-			   end
-			end
-			
-		     end
-		     
+   fun{ZombieMove Zoblist List Command}
+      fun{ZombieFun Zoblist N List Command}
+	 fun{ZombieGame OldX OldY Command N List}
+	    NewX NewY
+	    NextCommand
+	    fun{ZombieCommand Command Count X Y LX LY List N}
+	       IX IY L R in
+	       case Command.N of r(DX DY)|T then
+		  if Count == 3 then
+		     T
 		  else
-		     {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ C}
+		     IX = X+DX
+		     IY = Y+DY
+		     {Browse '------'}
+		     {Browse IX}
+		     {Browse IY}
+		     if {CheckCase List IX IY Wall}==true then T
+		     else
+			{DrawBox Floor X Y}
+			{DrawBox Zombie IX IY}
+			L={UpdateList List X Y Floor}
+			R={UpdateList L IX IY Zombie}
+			{Delay 2000}
+			{ZombieCommand Command Count+1 IX IY LX LY R N}
+		     end
 		  end
-		  
-	       else
-		  {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ C} %LE CHECKCASE FOIRE ICI
+	       [] H|T then
+		  T
 	       end
-	       
-	    else
-	       {DrawBox Floor X0 Y0}
-	       {DrawBox Zombie XNew YNew}
-	       local L in
-		  L={UpdateList Liste X0 Y0 Floor}
-		  {ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-1 {UpdateListZombie LZ X0 Y0 XNew YNew} C}
-	       end
-	       
-	      
 	    end
+	 in
+	    {ZombieCommand Command 0 OldX OldY NewX NewY List N}
+	 end
+      in
+	 case Zoblist of nil then List
+	 [] H|T then {ZombieFun T N+1 {ZombieGame H.1 H.2 Command N List} Command}
 	 end
       end
-   end
-   %SELECTIONNE JUSTE LES ZOMBIES DONC LE BUG NE VIENT PAS DE LA
-   fun{ZombieFun MapListe ZombieL ZombieUpd C}
-      case ZombieL of nil then MapListe
-      [] r(X Y)|T then
-	 local R in
-	    R={ZombieMove X Y {ChooseDirection} MapListe 3 ZombieUpd C}
-
-	    {ZombieFun R.1 T R.2 C}
-
-	 end
-	 
-      end
+   in
+      {ChooseDirection NZombies}
+      {ZombieFun Zoblist 1 List Command}
    end
    
-      
-
+   
    %IL FAUT QUE GAME RENVOIT LA LISTE MODIFIEE QUAND ON A FINI NOS 3 TOURS
    proc{Game OldX OldY Command List}%APPLIQUE LES REGLES DU JEU
       NewX NewY
       NextCommand
       fun{UserCommand Command Count X Y LX LY List Nammo Nobjettake}
-	 IX IY in
 	 {NBullets set(text:Nammo)}
 	 {NObjetT set(text:Nobjettake)}
-	 case Command of r(DX DY)|T then
-	    if Count == 2 then %2 pas à la fois (sans zombie)
-	       local LZombie R C in
-		  C=r(X Y)
-		  LZombie={ListZombie List}
-		  R= {ZombieFun List LZombie LZombie C}
-		  {UserCommand T 0 X Y  LX LY R Nammo Nobjettake}
-	       end
-	    else
-	       IX = X+DX
-	       IY = Y+DY
-	       if {CheckCase List IX IY Wall}==true then %PAS PASSER DANS LES MURS
-		  {UserCommand T Count X Y LX LY List Nammo Nobjettake}
-	       elseif {CheckCase List IX IY Zombie}==true then
-		  if Nammo==0 then
-		     {DrawBox Floor X Y}
-		     {UserCommand finish|nil Count X Y LX LY List Nammo Nobjettake}
-		  else
-		     {DrawBox Floor X Y}
-		     {DrawBox Brave IX IY}
-		     {UserCommand T Count+1 IX IY LX LY {UpdateList List IX IY Floor} Nammo-1 Nobjettake} %perd une munition si tue zombie
-		  end
-	       elseif{CheckCase List IX IY Bullets}==true then if Count<1 then  {DrawBox Floor  X Y}
-								  {DrawBox Brave IX IY} {UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo+1 Nobjettake+1}
+	 if Count ==2 then local LZombie R C in
+			      C=r(X Y)
+			      LZombie={ListZombie List}
+			      %R= {ZombieFun List LZombie LZombie C}
+			      {UserCommand Command 0 X Y  LX LY R Nammo Nobjettake}
+			   end
+	 else
+	    local IX IY
+	    in
+	       case Command of r(DX DY)|T then   
+		  IX = X+DX
+		  IY = Y+DY
+		  if {CheckCase List IX IY Wall}==true then %PAS PASSER DANS LES MURS
+		     {UserCommand T Count X Y LX LY List Nammo Nobjettake}
+		  elseif {CheckCase List IX IY Zombie}==true then
+		     if Nammo==0 then
+			{DrawBox Floor X Y}
+			{UserCommand finish|nil Count X Y LX LY List Nammo Nobjettake}
+		     else
+			{DrawBox Floor X Y}
+			{DrawBox Brave IX IY}
+			{UserCommand T Count+1 IX IY LX LY {UpdateList List IX IY Floor} Nammo-1 Nobjettake} %perd une munition si tue zombie
+		     end
+		  elseif{CheckCase List IX IY Bullets}==true then if Count<1 then  {DrawBox Floor  X Y}
+								     {DrawBox Brave IX IY} {UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo+1 Nobjettake+1}
+								  else
+								     {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
+								  end
+		 %gagne une mun si il en ramasse une
+		  elseif{CheckCase List IX IY Medicine}==true then if Count<1 then  {DrawBox Floor  X Y}
+								      {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
+								   else
+								      {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
+								   end
+		  elseif{CheckCase List IX IY Food}==true then if Count<1 then  {DrawBox Floor  X Y}
+								  {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
 							       else
 								  {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
 							       end
-		 %gagne une mun si il en ramasse une
-	       elseif{CheckCase List IX IY Medicine}==true then if Count<1 then  {DrawBox Floor  X Y}
-								   {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
-								else
-								   {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
-								end
-	       elseif{CheckCase List IX IY Food}==true then if Count<1 then  {DrawBox Floor  X Y}
-							       {DrawBox Brave IX IY}{UserCommand T Count+2 IX IY LX LY {UpdateList List IX IY Floor} Nammo Nobjettake+1}
-							    else
-							       {UserCommand T Count X Y LX LY List Nammo Nobjettake} %PROBLEME ICI
-							    end
-	       elseif IX==Xporte andthen IY==Yporte then  if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count IX IY LX LY List Nammo Nobjettake}
-							  else {UserCommand finish|nil Count IX IY LX LY List Nammo Nobjettake}
-							  end
-	       elseif{CheckCase List IX IY Floor}==true then {DrawBox Floor  X Y}
-		  {DrawBox Brave IX IY}
-		  {UserCommand T Count+1 IX IY LX LY List Nammo Nobjettake}
-	       else
-		  {UserCommand T Count X Y LX LY List Nammo Nobjettake}
+		  elseif IX==Xporte andthen IY==Yporte then  if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count IX IY LX LY List Nammo Nobjettake}
+							     else {UserCommand finish|nil Count IX IY LX LY List Nammo Nobjettake}
+							     end
+		  elseif{CheckCase List IX IY Floor}==true then {DrawBox Floor  X Y}
+		     {DrawBox Brave IX IY}
+		     {UserCommand T Count+1 IX IY LX LY List Nammo Nobjettake}
+		  else
+		     {UserCommand T Count X Y LX LY List Nammo Nobjettake}
+		  end
+	       [] finish|T then
+		  {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
+		  {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2) text:"GAME OVER" fill:red)}
+		  {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2)+15 text:"Press space bar to close the window" fill:red)}
+		  {Canvas create(text (TailleCase*LargeurMax)-130 (TailleCase*HauteurMax)-20 text:"By Daubry Benjamin & Van Malleghem Antoine" fill:red)}
+		  LX = X
+		  LY = Y
+		  T
+	       [] win|T then
+		  {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
+		  {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2) text:"YOU WIN !!!!!!!!" fill:red)}
+		  {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2)+15 text:"Press space bar to close the window" fill:red)}
+		  {Canvas create(text (TailleCase*LargeurMax)-130 (TailleCase*HauteurMax)-20 text:"By Daubry Benjamin & Van Malleghem Antoine" fill:red)}
+		  LX = X
+		  LY = Y
+		  T
 	       end
-	       
 	    end
-	 [] finish|T then
-	    {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
-	    {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2) text:"GAME OVER" fill:red)}
-	    {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2)+15 text:"Press space bar to close the window" fill:red)}
-	    {Canvas create(text (TailleCase*LargeurMax)-130 (TailleCase*HauteurMax)-20 text:"By Daubry Benjamin & Van Malleghem Antoine" fill:red)}
-	    LX = X
-	    LY = Y
-	    T
-	 [] win|T then
-	    {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
-	    {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2) text:"YOU WIN !!!!!!!!" fill:red)}
-	    {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2)+15 text:"Press space bar to close the window" fill:red)}
-	    {Canvas create(text (TailleCase*LargeurMax)-130 (TailleCase*HauteurMax)-20 text:"By Daubry Benjamin & Van Malleghem Antoine" fill:red)}
-	    LX = X
-	    LY = Y
-	    T
 	 end
       end
+      
+      in
+	 NextCommand = {UserCommand Command 0 OldX OldY NewX NewY List NAmmo NObjetTake}
+      end
    in
-      NextCommand = {UserCommand Command 0 OldX OldY NewX NewY List NAmmo NObjetTake}
-   end
-in
-   {Window show}
-   NbZeros={CountZero Map}
-   if NbZeros < NZombies then Lzombies={Trier {ChooseRand NbZeros {List NbZeros} NbZeros}}
-   else
-      Lzombies= {Trier {ChooseRand NZombies {List NbZeros} NbZeros}}
-   end
-   MapList={RemplirListe Map Lzombies}
-   {InitLayout MapList}
-   {Canvas create(text 55 10 text:"Number of bullets :" fill:red)}
-   {Canvas create(text 125 10 text:NAmmo fill:red handle:NBullets)}
-   {Canvas create(text 410 10 text:"Item needed :" fill:red)}
-   {Canvas create(text 460 10 text:NObjetTake fill:red handle:NObjetT)}
-   {Canvas create(text 470 10 text:"/" fill:red)}
-   {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
-  % LZ={ListZombie MapList}
+      {Window show}
+      NbZeros={CountZero Map}
+      if NbZeros < NZombies then Lzombies={Trier {ChooseRand NbZeros {List NbZeros} NbZeros}}
+      else
+	 Lzombies= {Trier {ChooseRand NZombies {List NbZeros} NbZeros}}
+      end
+      MapList={RemplirListe Map Lzombies}
+      {InitLayout MapList}
+      {Canvas create(text 55 10 text:"Number of bullets :" fill:red)}
+      {Canvas create(text 125 10 text:NAmmo fill:red handle:NBullets)}
+      {Canvas create(text 410 10 text:"Item needed :" fill:red)}
+      {Canvas create(text 460 10 text:NObjetTake fill:red handle:NObjetT)}
+      {Canvas create(text 470 10 text:"/" fill:red)}
+      {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
+      LZ={ListZombie MapList}
   % L1={ZombieFun MapList LZ LZ}
-   {Game Xbrave Ybrave Command MapList}
-   {Window bind(event:"<space>" action:toplevel#close)}
-end
+      %{Game Xbrave Ybrave Command MapList}
+      L1={ZombieMove LZ MapList CommandZombie}
+      {Window bind(event:"<space>" action:toplevel#close)}
+   end
