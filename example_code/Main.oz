@@ -2,7 +2,7 @@ local
    QTk
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RECUPERATION DES ARGUMENTS
-   NZombies=20 %Nombre de zombies par défaut (quand on ne passe pas en argument)
+   NZombies=40 %Nombre de zombies par défaut (quand on ne passe pas en argument)
    NObjetNeeded=3 %Nombre d'objets nécessaires par défaut (quand on ne passe pas en argument)
    NAmmo=2 %Nombre de balles par défaut (quand on ne passe pas en argument)
    %TODO RECUPERER LES ARGUMENTS
@@ -297,7 +297,7 @@ local
    fun{ZombiesMove ZombieListe N MapListe Command R}
       Liste
       fun{ZombieGame OldX OldY Command MapListe R}
-	 fun{ZombieCommand Command Count X Y MapListe R}
+	 fun{ZombieCommand Command Count X Y MapListe R AntiBug}
 	    {NBullets set(text:R.1)}
 	    if Count == 3 then
 	       MapListe#R.1
@@ -308,12 +308,12 @@ local
 		  IY = Y+DY
 		  if {CheckCase MapListe IX IY Wall} orelse {CheckCase MapListe IX IY Zombie}==true then
 		     {ChooseDirection N}
-		     {ZombieCommand T Count X Y MapListe R} 
+		     {ZombieCommand T Count X Y MapListe R AntiBug+1} 
 		  elseif {CheckCase MapListe IX IY Floor}==true then
 		     {Delay 200}
 		     {DrawBox Floor X Y}
 		     {DrawBox Zombie IX IY}
-		     {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R }
+		     {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R AntiBug}
 		  elseif {CheckCase MapListe IX IY Brave}==true then
 		     local Nammo DirX DirY in
 			Nammo = R.1
@@ -328,7 +328,7 @@ local
 			else
 			   {Delay 200}
 			   {DrawBox Floor X Y}
-			   {ZombieCommand Command 3 X Y {UpdateList MapListe X Y Floor} (Nammo-1)#R.2} %Zombie se fait tuer, je sais pas trop comment faire. Deja mis a jour la liste. Comment passer au zombie suivant?
+			   {ZombieCommand Command 3 X Y {UpdateList MapListe X Y Floor} (Nammo-1)#R.2 AntiBug} %Zombie se fait tuer, je sais pas trop comment faire. Deja mis a jour la liste. Comment passer au zombie suivant?
 			end
 		     end
 		  elseif {CheckCase MapListe IX IY Medicine} orelse {CheckCase MapListe IX IY Bullets} orelse {CheckCase MapListe IX IY Food} then
@@ -337,24 +337,34 @@ local
 			   {Delay 1000}
 			   {DrawBox Floor X Y}
 			   {DrawBox Zombie IX IY}
-			   {ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R}
+			   {ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R AntiBug}
 			else
 			   {ChooseDirection N}
-			   {ZombieCommand T Count X Y MapListe R}
+			   {ZombieCommand T Count X Y MapListe R AntiBug}
 			end
 		     else
 			{ChooseDirection N}
-			{ZombieCommand T Count X Y MapListe R}
+			{ZombieCommand T Count X Y MapListe R AntiBug}
 		     end
+		  elseif {CheckCase MapListe IX IY Zombie} then
+		     if(AntiBug >=4) then
+			{Delay 200}
+			{DrawBox Floor X Y}
+			{ZombieCommand Command Count+2 IX IY {UpdateList MapListe  X Y Floor} R 0}
+		     else
+			{ChooseDirection N}
+			{ZombieCommand T Count X Y MapListe R AntiBug+1}
+		     end
+
 		  else
 		     {ChooseDirection N}
-		     {ZombieCommand T Count X Y MapListe R}
+		     {ZombieCommand T Count X Y MapListe R AntiBug}
 		  end
 	       end
 	    end
 	 end
       in
-	 {ZombieCommand Command 0 OldX OldY MapListe R}
+	 {ZombieCommand Command 0 OldX OldY MapListe R 0}
       end
    in
       case ZombieListe of nil then MapListe#R.1
