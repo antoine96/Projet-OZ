@@ -2,7 +2,7 @@ local
    QTk
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RECUPERATION DES ARGUMENTS
-   NZombies=15 %Nombre de zombies par défaut (quand on ne passe pas en argument)
+   NZombies=6 %Nombre de zombies par défaut (quand on ne passe pas en argument)
    NObjetNeeded=3 %Nombre d'objets nécessaires par défaut (quand on ne passe pas en argument)
    NAmmo=2 %Nombre de balles par défaut (quand on ne passe pas en argument)
    %TODO RECUPERER LES ARGUMENTS
@@ -344,10 +344,10 @@ local
       end
    end
    fun{Game OldX OldY Command List}
-      fun{UserCommand Command Count X Y List Nammo Nobjettake}
+      fun{UserCommand Command Count X Y List Nammo Nobjettake R}
 	 {NBullets set(text:Nammo)}
 	 {NObjetT set(text:Nobjettake)}
-	 if Count ==2 then List
+	 if Count ==2 then List#Nammo#R
 	 else
 	    local IX IY
 	    in
@@ -355,41 +355,41 @@ local
 		  IX = X+DX
 		  IY = Y+DY
 		  if {CheckCase List IX IY Wall} then
-		     {UserCommand T Count X Y List Nammo Nobjettake}
+		     {UserCommand T Count X Y List Nammo Nobjettake R}
 		  elseif {CheckCase List IX IY Zombie} then
 		     if Nammo==0 then
 			{DrawBox Floor X Y}
-			{UserCommand finish|nil Count X Y List Nammo Nobjettake}
+			{UserCommand finish|nil Count X Y List Nammo Nobjettake R}
 		     else
 			{DrawBox Floor X Y}
 			{DrawBox Brave IX IY}
-			{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo-1 Nobjettake}
+			{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo-1 Nobjettake r(DX DY)|R}
 		     end
 		  elseif{CheckCase List IX IY Bullets} then
 		     if Count<1 then
 			{DrawBox Floor  X Y}
 			{DrawBox Brave IX IY}
-			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo+1 Nobjettake}
+			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo+1 Nobjettake r(DX DY)|R}
 		     else
-			{UserCommand T Count X Y List Nammo Nobjettake}
+			{UserCommand T Count X Y List Nammo Nobjettake R}
 		     end
 		  elseif{CheckCase List IX IY Medicine} orelse {CheckCase List IX IY Food} then
 		     if Count<1 then
 			{DrawBox Floor  X Y}
 			{DrawBox Brave IX IY}
-			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake+1}
+			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake+1 r(DX DY)|R}
 		     else
-			{UserCommand T Count X Y List Nammo Nobjettake} %PROBLEME ICI
+			{UserCommand T Count X Y List Nammo Nobjettake R} %PROBLEME ICI
 		     end
-		  elseif IX==Xporte andthen IY==Yporte then  if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count IX IY List Nammo Nobjettake}
-							     else {UserCommand finish|nil Count IX IY List Nammo Nobjettake}
+		  elseif IX==Xporte andthen IY==Yporte then  if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count IX IY List Nammo Nobjettake R}
+							     else {UserCommand finish|nil Count IX IY List Nammo Nobjettake R}
 							     end
 		  elseif{CheckCase List IX IY Floor} then
 		     {DrawBox Floor  X Y}
 		     {DrawBox Brave IX IY}
-		     {UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake}
+		     {UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY)|R}
 		  else
-		     {UserCommand T Count X Y List Nammo Nobjettake}
+		     {UserCommand T Count X Y List Nammo Nobjettake R}
 		  end
 	       [] finish|T then
 		  {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
@@ -409,7 +409,7 @@ local
       end
       
    in
-      {UserCommand Command 0 OldX OldY List NAmmo NObjetTake}
+      {UserCommand Command 0 OldX OldY List NAmmo NObjetTake nil}
    end
 in
    {Window show}
@@ -424,6 +424,6 @@ in
    {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
  %  LZ={ListZombie MapList}
    L2={Game Xbrave Ybrave Command MapList}
-   L1={ZombiesMove {ListZombie L2} 1 L2 CommandZombie}
+   L1={ZombiesMove {ListZombie L2.1} 1 L2.1 CommandZombie}
    {Window bind(event:"<space>" action:toplevel#close)}
 end
