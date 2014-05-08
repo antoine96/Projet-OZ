@@ -2,7 +2,7 @@ local
    QTk
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RECUPERATION DES ARGUMENTS
-   NZombies=15 %Nombre de zombies par défaut (quand on ne passe pas en argument)
+   NZombies=3 %Nombre de zombies par défaut (quand on ne passe pas en argument)
    NObjetNeeded=3 %Nombre d'objets nécessaires par défaut (quand on ne passe pas en argument)
    NAmmo=2 %Nombre de balles par défaut (quand on ne passe pas en argument)
    %TODO RECUPERER LES ARGUMENTS
@@ -422,8 +422,8 @@ in
    {Canvas create(text 460 10 text:NObjetTake fill:red handle:NObjetT)}
    {Canvas create(text 470 10 text:"/" fill:red)}
    {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
- %  LZ={ListZombie MapList}
+   LZ={ListZombie MapList}
    L2={Game Xbrave Ybrave Command MapList}
-   L1={ZombiesMove {ListZombie L2} 1 L2 CommandZombie}
+   L1={ZombiesMove LZ 1 L2 CommandZombie}
    {Window bind(event:"<space>" action:toplevel#close)}
 end
