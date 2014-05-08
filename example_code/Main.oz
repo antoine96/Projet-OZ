@@ -300,7 +300,7 @@ local
 	 fun{ZombieCommand Command Count X Y MapListe R}
 	    {NBullets set(text:R.1)}
 	    if Count == 3 then
-	       MapListe
+	       MapListe#R.1
 	    else
 	       IX IY in
 	       case Command of r(DX DY)|T then
@@ -357,7 +357,7 @@ local
 	 {ZombieCommand Command 0 OldX OldY MapListe R}
       end
    in
-      case ZombieListe of nil then MapListe
+      case ZombieListe of nil then MapListe#R.1
       [] r(X Y)|T then
 	 local Res in
 	    {ChooseDirection N}
@@ -365,7 +365,7 @@ local
 	    if Res==1 then
 	       1
 	    else
-	       {ZombiesMove T N+1 Res Command R}
+	       {ZombiesMove T N+1 Res.1 Command Res.2#R.2}
 	    end
 	 end
       end
@@ -380,7 +380,7 @@ local
 	       if Res==1 then
 		  1
 	       else
-		  {UserCommand Command 0 X Y Res Nammo Nobjettake R}
+		  {UserCommand Command 0 X Y Res.1 Res.2  Nobjettake R}
 	       end
 	    end
 	 else
