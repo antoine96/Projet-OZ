@@ -323,7 +323,7 @@ local
 			     {ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} }
 			  else
 			     {ChooseDirection N}
-			     {ZombieCommand T Count+2 X Y MapListe}
+			     {ZombieCommand T Count X Y MapListe}
 			  end
 		       else
 			  {ChooseDirection N}
