@@ -17,7 +17,6 @@ local
    LZ %Coordonnées Zombie
    TailleCase=40 %Taille d'une case de la map
    NbZeros %Nombre d'espaces vides dans la map
-   Lzombies %Liste des cases ou on mettra des zombies
    Canvas % Le canvas de la carte
    LargeurMax %Largeur maximale de la carte
    HauteurMax %Hauteur maximale de la carte
@@ -39,81 +38,97 @@ local
    Floor = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/floor.gif')}
    Wall = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/wall.gif')}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   fun{List N}
-      if N==0 then nil
-      else
-	 N|{List N-1}
-      end
-   end
-   fun{Retirer N L}
-      if N==1 then if L==nil then nil else L.2 end
-      else
-	 L.1|{Retirer N-1 L.2}
-      end
-   end
-   fun{Take N L}
-      if N==1 then L.1
-      else
-	 {Take N-1 L.2}
-      end
-   end
-   fun{ChooseRand N L Taille}
-      if N==0 then nil
-      else
-	 local Rand in Rand=(({Abs {OS.rand}} mod Taille) + 1)
-	    {Take Rand L}|{ChooseRand N-1 {Retirer Rand L}  Taille-1}
+   %Fonction qui nous donne la position relative des zombies (par rapport au nombre de Floor(0) sur la map
+   fun{ZombiesNumber NbZombies Map}
+      fun{List N}
+	 if N==0 then nil
+	 else
+	    N|{List N-1}
 	 end
       end
-   end
-   fun{Trier L}
-      fun{Concat Xs Ys}
-	 case Xs of X|Xr then
-	    X|{Concat Xr Ys}
-	 [] nil then Ys
-	 end
-      end
-      proc{Partition L2 X L R}
-	 case L2
-	 of Y|M2 then
-	    if Y<X then Ln in
-	       L=Y|Ln
-	       {Partition M2 X Ln R}
-	    else Rn in
-	       R=Y|Rn
-	       {Partition M2 X L Rn}
+      fun{ChooseRand N L Taille}
+	  fun{Retirer N L}
+	     if N==1 then if L==nil then nil else L.2 end
+	     else
+		L.1|{Retirer N-1 L.2}
+	     end
+	  end
+	  fun{Take N L}
+	     if N==1 then L.1
+	     else
+		{Take N-1 L.2}
+	     end
+	  end
+      in
+	 
+	 if N==0 then nil
+	 else
+	    local Rand in Rand=(({Abs {OS.rand}} mod Taille) + 1)
+	       {Take Rand L}|{ChooseRand N-1 {Retirer Rand L}  Taille-1}
 	    end
-	 [] nil then L=nil R=nil
 	 end
       end
-   in
-      case L of X|L2 then Left Right SL SR in
-	 {Partition L2 X Left Right}
-	 SL={Trier Left}
-	 SR={Trier Right}
-	 {Concat SL X|SR}
-      [] nil then nil end
-   end
-   fun{CountZero Map}
-      fun{CountZero Map Acc Lignes}
-	 fun{CountZeroAcc L Acc Col}
-	    if (Col-1)=={Width L} then Acc
-	    else
-	       if L.Col==0 then {CountZeroAcc L Acc+1 Col+1}
-	       else
-		  {CountZeroAcc L Acc Col+1}
+      fun{Trier L}
+	 fun{Concat Xs Ys}
+	    case Xs of X|Xr then
+	       X|{Concat Xr Ys}
+	    [] nil then Ys
+	    end
+	 end
+	 proc{Partition L2 X L R}
+	    case L2
+	    of Y|M2 then
+	       if Y<X then Ln in
+		  L=Y|Ln
+		  {Partition M2 X Ln R}
+	       else Rn in
+		  R=Y|Rn
+		  {Partition M2 X L Rn}
 	       end
+	    [] nil then L=nil R=nil
 	    end
 	 end
       in
-	 if (Lignes-1)=={Width Map} then Acc
-	 else
-	    {CountZero Map Acc+{CountZeroAcc Map.Lignes 0 1} Lignes+1}
+	 case L of X|L2 then Left Right SL SR in
+	    {Partition L2 X Left Right}
+	    SL={Trier Left}
+	    SR={Trier Right}
+	    {Concat SL X|SR}
+	 [] nil then nil end
+      end
+      fun{CountZero Map}
+	 fun{CountZero Map Acc Lignes}
+	    fun{CountZeroAcc L Acc Col}
+	       if (Col-1)=={Width L} then Acc
+	       else
+		  if L.Col==0 then {CountZeroAcc L Acc+1 Col+1}
+		  else
+		     {CountZeroAcc L Acc Col+1}
+		  end
+	       end
+	    end
+	 in
+	    if (Lignes-1)=={Width Map} then Acc
+	    else
+	       {CountZero Map Acc+{CountZeroAcc Map.Lignes 0 1} Lignes+1}
+	    end
 	 end
+      in
+	 {CountZero Map 0 1}
       end
    in
-      {CountZero Map 0 1}
+      NbZeros={CountZero Map}
+      if NbZeros < NZombies then
+	 {Trier {ChooseRand NbZeros {List NbZeros} NbZeros}}
+      else
+	 {Trier {ChooseRand NZombies {List NbZeros} NbZeros}}
+      end
    end
-   %LISTE FINIT TOUJOURS SUR NIL APPAREMMENT
+
+
+
+   
+  
    fun {CheckCase List X Y Image}
       case List of nil then Image=='Floor'
       []r(Img Col Ligne)|T then
@@ -127,7 +142,6 @@ local
 	 end
       end
    end
-
    fun {UpdateList List X Y Image}
       case List of r(Img Col Ligne)|T then
 	 if Col == X then
@@ -178,25 +192,18 @@ local
       end
    end
    
-   
-   %TODO : DOUBLE CONDITION
    fun{RemplirListe Z Zombies}
       fun{RemplirListeAcc Z Ligne Col Zombies Acc2}
-	 if (Ligne==HauteurMax) then if (Col=={Width Z.HauteurMax}+1) then nil
-				     else
-					if (Z.Ligne.Col)==5 then
-					   r(Brave Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
-					else
-					   r(Wall Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2}
-					end
-				     end
-	 else if Col=={Width Z.Ligne}+1 then {RemplirListeAcc Z Ligne+1 1 Zombies Acc2}
+	 if (Ligne==HauteurMax) andthen (Col=={Width Z.HauteurMax}+1) then
+	    nil
+	 else if Col=={Width Z.Ligne}+1 then
+		 {RemplirListeAcc Z Ligne+1 1 Zombies Acc2}
 	      else
 		 if (Z.Ligne.Col)==0 then
-		    if Zombies==nil then r(Floor Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2+1}
+		    if Zombies==nil then
+		       r(Floor Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2+1}
 		    else
 		       if Acc2==Zombies.1 then
-			     
 			  r(Zombie Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies.2 Acc2+1}
 		       else
 			  r(Floor Col Ligne)|{RemplirListeAcc Z Ligne Col+1 Zombies Acc2+1}
@@ -239,7 +246,7 @@ local
    {Window bind(event:"<Left>" action:proc{$} {Send CommandPort r(~1 0)} end)}
    {Window bind(event:"<Down>" action:proc{$} {Send CommandPort r(0 1)}  end)}
    {Window bind(event:"<Right>" action:proc{$} {Send CommandPort r(1 0)} end)}
-   %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%
    proc{DrawBox Image X Y}%POUR FAIRE LES CASES (et les images)
       {Canvas create(image X*40-20 Y*40-20 image:Image anchor:center)}
    end
@@ -406,12 +413,7 @@ local
    end
 in
    {Window show}
-   NbZeros={CountZero Map}
-   if NbZeros < NZombies then Lzombies={Trier {ChooseRand NbZeros {List NbZeros} NbZeros}}
-   else
-      Lzombies= {Trier {ChooseRand NZombies {List NbZeros} NbZeros}}
-   end
-   MapList={RemplirListe Map Lzombies}
+   MapList={RemplirListe Map {ZombiesNumber NZombies Map}}
    {InitLayout MapList}
    {BuildZombiePort NZombies CommandZombie CommandZombiePort}
    {Canvas create(text 55 10 text:"Number of bullets :" fill:red)}
