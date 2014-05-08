@@ -2,7 +2,7 @@ local
    QTk
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RECUPERATION DES ARGUMENTS
-   NZombies=6 %Nombre de zombies par défaut (quand on ne passe pas en argument)
+   NZombies=20 %Nombre de zombies par défaut (quand on ne passe pas en argument)
    NObjetNeeded=3 %Nombre d'objets nécessaires par défaut (quand on ne passe pas en argument)
    NAmmo=2 %Nombre de balles par défaut (quand on ne passe pas en argument)
    %TODO RECUPERER LES ARGUMENTS
@@ -294,9 +294,11 @@ local
 	 end
       end
    end
-   fun{ZombiesMove ZombieListe N MapListe Command R} 
+   fun{ZombiesMove ZombieListe N MapListe Command R}
+      Liste
       fun{ZombieGame OldX OldY Command MapListe R}
 	 fun{ZombieCommand Command Count X Y MapListe R}
+	    {NBullets set(text:R.1)}
 	    if Count == 3 then
 	       MapListe
 	    else
@@ -308,7 +310,7 @@ local
 		     {ChooseDirection N}
 		     {ZombieCommand T Count X Y MapListe R} 
 		  elseif {CheckCase MapListe IX IY Floor}==true then
-		     {Delay 500}
+		     {Delay 200}
 		     {DrawBox Floor X Y}
 		     {DrawBox Zombie IX IY}
 		     {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R }
@@ -318,14 +320,14 @@ local
 			DirX=R.2.1.1
 			DirY=R.2.1.2
 			if(R.1==0)==true orelse DirX==DX orelse DirY==DY then%pas de mun, tue le brave--Meme direction = zombie derriere, tue le brave ENVOYER GAME OVER !?
-			   {Delay 500}
+			   {Delay 200}
 			   {DrawBox Floor X Y}
 			   {DrawBox Zombie IX IY}
-			   {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor}  R}
+			   {ZombieCommand finish|nil Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor}  R}
 			else
-			   {Delay 500}
+			   {Delay 200}
 			   {DrawBox Floor X Y}
-			   {ZombieCommand Command Count X Y {UpdateList MapListe X Y Floor} (Nammo-1)#R.2} %Zombie se fait tuer, je sais pas trop comment faire. Deja mis a jour la liste. Comment passer au zombie suivant?
+			   {ZombieCommand Command 3 X Y {UpdateList MapListe X Y Floor} Nammo=R.1#R.2} %Zombie se fait tuer, je sais pas trop comment faire. Deja mis a jour la liste. Comment passer au zombie suivant?
 			end
 		     end
 		  elseif {CheckCase MapListe IX IY Medicine} orelse {CheckCase MapListe IX IY Bullets} orelse {CheckCase MapListe IX IY Food} then
@@ -347,6 +349,12 @@ local
 		     {ChooseDirection N}
 		     {ZombieCommand T Count X Y MapListe R}
 		  end
+	       [] finish|nil then
+		  {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
+		  {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2) text:"GAME OVER" fill:red)}
+		  {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2)+15 text:"Press space bar to close the window" fill:red)}
+		  {Canvas create(text (TailleCase*LargeurMax)-130 (TailleCase*HauteurMax)-20 text:"By Daubry Benjamin & Van Malleghem Antoine" fill:red)}
+		  MapListe
 	       end
 	    end
 	 end
@@ -357,14 +365,14 @@ local
       case ZombieListe of nil then MapListe
       [] r(X Y)|T then
 	 {ChooseDirection N}
-	 {ZombiesMove T N+1 {ZombieGame X Y Command.N MapListe} Command R}
+	 {ZombiesMove T N+1 {ZombieGame X Y Command.N MapListe R} Command R}
       end
    end
    fun{Game OldX OldY Command List}
       fun{UserCommand Command Count X Y List Nammo Nobjettake R}
 	 {NBullets set(text:Nammo)}
 	 {NObjetT set(text:Nobjettake)}
-	 if Count ==2 then List#Nammo#R
+	 if Count==2 then {UserCommand Command 0 X Y {ZombiesMove {ListZombie List} 1 List CommandZombie Nammo#R} Nammo Nobjettake R}
 	 else
 	    local IX IY
 	    in
@@ -439,8 +447,6 @@ in
    {Canvas create(text 460 10 text:NObjetTake fill:red handle:NObjetT)}
    {Canvas create(text 470 10 text:"/" fill:red)}
    {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
- %  LZ={ListZombie MapList}
    L2={Game Xbrave Ybrave Command MapList}
-   L1={ZombiesMove {ListZombie L2.1} 1 L2.1 CommandZombie L2.2#L2.3}
    {Window bind(event:"<space>" action:toplevel#close)}
 end
