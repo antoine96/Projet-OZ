@@ -26,6 +26,8 @@ local
    Ybrave %La position verticale du brave
    Command % le port
    CommandPort = {NewPort Command}
+   CommandZombie
+   CommandZombiePort
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHARGEMENT DES IMAGES
    CD = {OS.getCWD}
    Brave = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/brave.gif')}
@@ -254,20 +256,23 @@ local
       
       {DrawUnits ListToDraw}
    end
-%direction aléatoire
-   fun{ChooseDirection}
-      local I DX DY in
-	 I =(({Abs {OS.rand}} mod 4) + 1)
-	 if I == 1 then DX=~1 DY=0
-	 elseif I==2 then DX=0 DY=~1
-	 elseif I==3 then DX=1 DY=0
-	 else DX=0 DY=1
-	 end
-	 r(DX DY)
-     end
+   proc{BuildZombiePort N ?S ?P}
+      S={MakeTuple s N}
+      P={MakeTuple p N}
+      for I in 1..N do
+	 P.I={NewPort S.I}
+      end
    end
-   %Idealement faut retirer un zombie quand il meurt, ce quon fais pas. ON VA FAIRE UNE FONCTION POUR CA QU'ON APPELERA DANS GAME ; IZI WIN
-   %mais FAUX car ordre de la MAPLIST doit changer du coup : POURQUOI ? AUCUNE RELATION D'ORDRE DANS LA MAPLIST JE CROIS
+   proc{ChooseDirection N}
+      local I in
+	    I =(({Abs {OS.rand}} mod 4) + 1)
+	    if I == 1 then {Send CommandZombiePort.N r(~1 0)}
+	    elseif I==2 then  {Send CommandZombiePort.N r(0 ~1)}
+	    elseif I==3 then  {Send CommandZombiePort.N r(1 0)}
+	    else  {Send CommandZombiePort.N r(0 1)}
+	    end
+      end
+   end
    fun {UpdateListZombie List X Y XN YN}
       case List of r(Col Ligne)|T then
 	 if Col==X then
@@ -281,77 +286,55 @@ local
 	 end
       end
    end
-%ON NE VA FAIRE QU'UN MOUVEMENT 
-   fun{ZombieMove X0 Y0 Dir Liste N LZ C}
-      local
-	 XNew
-	 YNew
-      in
-	 {Delay 100}
-	 if N=<0 then Liste#LZ
-	 else
-	    XNew=X0+Dir.1
-	    YNew=Y0+Dir.2
-	    if{CheckCase Liste XNew YNew Floor}==false then
-	       if {CheckCase Liste XNew YNew Wall}==false then
-		  if {CheckCase Liste XNew YNew Zombie}==false then %cas ou cest objet, faut 20% de chance de ramasser, sinon changedirection
-
-		     
-		     if N=<1 then
-			{ZombieMove X0 Y0 {ChooseDirection} Liste N LZ C}
-		     else
-			local Luck in
-			   Luck=(({Abs {OS.rand}} mod 5) + 1)
-			   if Luck==3 then
-			      {DrawBox Floor X0 Y0}
-			      {DrawBox Zombie XNew YNew}
-			      local L in
-				 L={UpdateList Liste X0 Y0 Floor}
-				 {ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-2 {UpdateListZombie LZ X0 Y0 XNew YNew} C}
-			      end
-			   else
-			      {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ C}
-			   end
-			end
-			
-		     end
-		     
-		  else
-		     {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ C}
-		  end
-		  
+   fun{ZombiesMove ZombieListe N MapListe Command} 
+      fun{ZombieGame OldX OldY Command MapListe}
+	 fun{ZombieCommand Command Count X Y MapListe}
+	    IX IY in
+	    case Command of r(DX DY)|T then
+	       if Count == 3 then
+		  MapListe
 	       else
-		  {ZombieMove X0 Y0 {ChooseDirection} Liste N LZ C} %LE CHECKCASE FOIRE ICI
+		  IX = X+DX
+		  IY = Y+DY
+		  if {CheckCase MapListe IX IY Wall} orelse {CheckCase MapListe IX IY Zombie}==true then
+		     {ChooseDirection N}
+		     {ZombieCommand T Count X Y MapListe} 
+		  elseif {CheckCase MapListe IX IY Floor}==true then
+		     {Delay 500}
+		     {DrawBox Floor X Y}
+		     {DrawBox Zombie IX IY}
+		     {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} }
+		  elseif {CheckCase MapListe IX IY Brave}==true then
+		     {ChooseDirection N}
+		     {ZombieCommand T Count X Y MapListe}
+		  else if Count=<1 then
+			  if (({Abs {OS.rand}} mod 5) + 1)==3 then
+			     {Delay 1000}
+			     {DrawBox Floor X Y}
+			     {DrawBox Zombie IX IY}
+			     {ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} }
+			  else
+			     {ChooseDirection N}
+			     {ZombieCommand T Count+2 X Y MapListe}
+			  end
+		       else
+			  {ChooseDirection N}
+			  {ZombieCommand T Count X Y MapListe}
+		       end
+		  end
 	       end
-	       
-	    else
-	       {DrawBox Floor X0 Y0}
-	       {DrawBox Zombie XNew YNew}
-	       local L in
-		  L={UpdateList Liste X0 Y0 Floor}
-		  {ZombieMove XNew YNew Dir {UpdateList L XNew YNew Zombie} N-1 {UpdateListZombie LZ X0 Y0 XNew YNew} C}
-	       end
-	       
-	      
 	    end
 	 end
+      in
+	 {ZombieCommand Command 0 OldX OldY MapListe}
       end
-   end
-   %SELECTIONNE JUSTE LES ZOMBIES DONC LE BUG NE VIENT PAS DE LA
-   fun{ZombieFun MapListe ZombieL ZombieUpd C}
-      case ZombieL of nil then MapListe
+   in
+      case ZombieListe of nil then MapListe
       [] r(X Y)|T then
-	 local R in
-	    R={ZombieMove X Y {ChooseDirection} MapListe 3 ZombieUpd C}
-
-	    {ZombieFun R.1 T R.2 C}
-
-	 end
-	 
+	 {ChooseDirection N}
+	 {ZombiesMove T N+1 {ZombieGame X Y Command.N MapListe} Command}
       end
    end
-   
-      
 
    %IL FAUT QUE GAME RENVOIT LA LISTE MODIFIEE QUAND ON A FINI NOS 3 TOURS
    proc{Game OldX OldY Command List}%APPLIQUE LES REGLES DU JEU
@@ -363,8 +346,8 @@ local
 	 if Count ==2 then local LZombie R C in
 			      C=r(X Y)
 			      LZombie={ListZombie List}
-			      R= {ZombieFun List LZombie LZombie C}
-			      {UserCommand Command 0 X Y  LX LY R Nammo Nobjettake}
+			      %R= {ZombieFun List LZombie LZombie C}
+			      %{UserCommand Command 0 X Y  LX LY R Nammo Nobjettake}
 			   end
 	 else
 	    local IX IY
@@ -441,14 +424,16 @@ local
       end
       MapList={RemplirListe Map Lzombies}
       {InitLayout MapList}
+      {BuildZombiePort NZombies CommandZombie CommandZombiePort}
       {Canvas create(text 55 10 text:"Number of bullets :" fill:red)}
       {Canvas create(text 125 10 text:NAmmo fill:red handle:NBullets)}
       {Canvas create(text 410 10 text:"Item needed :" fill:red)}
       {Canvas create(text 460 10 text:NObjetTake fill:red handle:NObjetT)}
       {Canvas create(text 470 10 text:"/" fill:red)}
       {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
-  % LZ={ListZombie MapList}
-  % L1={ZombieFun MapList LZ LZ}
-      {Game Xbrave Ybrave Command MapList}
+      LZ={ListZombie MapList}
+      L1={ZombiesMove LZ 1 MapList CommandZombie}
+      {Browse 1}
+      %{Game Xbrave Ybrave Command MapList}
       {Window bind(event:"<space>" action:toplevel#close)}
    end
