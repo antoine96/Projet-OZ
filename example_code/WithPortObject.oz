@@ -265,58 +265,75 @@ local
    end
    {BuildZombiePort NZombies CommandZombie CommandZombiePort}
    proc{ChooseDirection N}
-      for J in 1..N do
-	 local I in
+      local I in
 	    I =(({Abs {OS.rand}} mod 4) + 1)
-	    if I == 1 then {Send CommandZombiePort.J r(~1 0)}
-	    elseif I==2 then  {Send CommandZombiePort.J r(0 ~1)}
-	    elseif I==3 then  {Send CommandZombiePort.J r(1 0)}
-	    else  {Send CommandZombiePort.J r(0 1)}
+	    if I == 1 then {Send CommandZombiePort.N r(~1 0)}
+	    elseif I==2 then  {Send CommandZombiePort.N r(0 ~1)}
+	    elseif I==3 then  {Send CommandZombiePort.N r(1 0)}
+	    else  {Send CommandZombiePort.N r(0 1)}
 	    end
+      end
+   end
+   fun {UpdateListZombie List X Y XN YN}
+      case List of r(Col Ligne)|T then
+	 if Col==X then
+	    if Ligne==Y then
+	       r(XN YN)|T
+	    else
+	       List.1|{UpdateListZombie T X Y XN YN}
+	    end
+	 else
+	    List.1|{UpdateListZombie T X Y XN YN}
 	 end
       end
    end
    fun{ZombieMove Zoblist List Command}
-      fun{ZombieFun Zoblist N List Command}
-	 fun{ZombieGame OldX OldY Command N List}
+      fun{ZombieFun Zoblist N List Command Count}
+	 fun{ZombieGame OldX OldY Command N List Count}
 	    NewX NewY
 	    NextCommand
 	    fun{ZombieCommand Command Count X Y LX LY List N}
 	       IX IY L R in
-	       case Command.N of r(DX DY)|T then
-		  if Count == 3 then
-		     T
+	       case Command of r(DX DY)|T then
+		  {Browse Count#N}
+		  {Delay 2000}
+		  if Count == 20 then
+		     Count#List#X#Y
 		  else
 		     IX = X+DX
 		     IY = Y+DY
-		     {Browse '------'}
-		     {Browse IX}
-		     {Browse IY}
-		     if {CheckCase List IX IY Wall}==true then T
+		     if {CheckCase List IX IY Wall}==true then Count#List#X#Y
 		     else
 			{DrawBox Floor X Y}
 			{DrawBox Zombie IX IY}
 			L={UpdateList List X Y Floor}
 			R={UpdateList L IX IY Zombie}
-			{Delay 2000}
 			{ZombieCommand Command Count+1 IX IY LX LY R N}
 		     end
 		  end
-	       [] H|T then
-		  T
+	       else
+		  {ZombieCommand Command Count X Y LX LY List N}
 	       end
 	    end
 	 in
-	    {ZombieCommand Command 0 OldX OldY NewX NewY List N}
+	    {ZombieCommand Command Count OldX OldY NewX NewY List N}
 	 end
       in
 	 case Zoblist of nil then List
-	 [] H|T then {ZombieFun T N+1 {ZombieGame H.1 H.2 Command N List} Command}
+	 [] r(X Y)|T then {Browse Count}if Count==~1 then local R in {ChooseDirection N} R={ZombieGame X Y Command.N N List Count+1} {ZombieFun {UpdateListZombie Zoblist X Y R.3 R.4} N R.2 Command R.1} end
+			  elseif
+			     Count==20 then {ZombieFun T N+1 List Command ~1}
+			  else
+			     local R in
+				{ChooseDirection N}
+				R={ZombieGame X Y Command.N.2 N List Count}
+				{ZombieFun {UpdateListZombie Zoblist X Y R.3 R.4} N R.2 Command R.1} 
+				end
+			  end
 	 end
       end
    in
-      {ChooseDirection NZombies}
-      {ZombieFun Zoblist 1 List Command}
+      {ZombieFun Zoblist 1 List Command ~1}
    end
    
    
