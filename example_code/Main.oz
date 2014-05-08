@@ -327,7 +327,7 @@ local
 			else
 			   {Delay 200}
 			   {DrawBox Floor X Y}
-			   {ZombieCommand Command 3 X Y {UpdateList MapListe X Y Floor} Nammo=R.1#R.2} %Zombie se fait tuer, je sais pas trop comment faire. Deja mis a jour la liste. Comment passer au zombie suivant?
+			   {ZombieCommand Command 3 X Y {UpdateList MapListe X Y Floor} (Nammo-1)#R.2} %Zombie se fait tuer, je sais pas trop comment faire. Deja mis a jour la liste. Comment passer au zombie suivant?
 			end
 		     end
 		  elseif {CheckCase MapListe IX IY Medicine} orelse {CheckCase MapListe IX IY Bullets} orelse {CheckCase MapListe IX IY Food} then
