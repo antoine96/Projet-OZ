@@ -315,20 +315,24 @@ local
 		  elseif {CheckCase MapListe IX IY Brave}==true then
 		     {ChooseDirection N}
 		     {ZombieCommand T Count X Y MapListe}
-		  else if Count=<1 then
-			  if (({Abs {OS.rand}} mod 5) + 1)==3 then
-			     {Delay 1000}
-			     {DrawBox Floor X Y}
-			     {DrawBox Zombie IX IY}
-			     {ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} }
-			  else
-			     {ChooseDirection N}
-			     {ZombieCommand T Count X Y MapListe}
-			  end
-		       else
-			  {ChooseDirection N}
-			  {ZombieCommand T Count X Y MapListe}
-		       end
+		  elseif {CheckCase MapListe IX IY Medicine} orelse {CheckCase MapListe IX IY Bullets} orelse {CheckCase MapListe IX IY Food} then
+		     if Count=<1 then
+			if (({Abs {OS.rand}} mod 5) + 1)==3 then
+			   {Delay 1000}
+			   {DrawBox Floor X Y}
+			   {DrawBox Zombie IX IY}
+			   {ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} }
+			else
+			   {ChooseDirection N}
+			   {ZombieCommand T Count X Y MapListe}
+			end
+		     else
+			{ChooseDirection N}
+			{ZombieCommand T Count X Y MapListe}
+		     end
+		  else
+		     {ChooseDirection N}
+		     {ZombieCommand T Count X Y MapListe}
 		  end
 	       end
 	    end
