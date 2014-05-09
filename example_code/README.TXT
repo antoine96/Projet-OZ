@@ -23,7 +23,7 @@ Ce jeu se joue au tour par tour.
 En commencant, vous êtes le Brave et vous avez droit à 2 pas. 
 Vous dirigez le Brave avec les flèches directionnelles. 
 Ramasser un objet vous coute un pas, donc si vous en ramassez un, vous ne ferez qu'un seul pas. Si ce sont des munitions cela ne vous coute pas de pas et vous gagnez une munition.
-%%%A VOIR SI CA COUTE PAS UN PAS OU PAS
+%%%A VOIR SI CA COUTE UN PAS OU PAS
 Si vous arrivez sur un Zombie avec des munitions, vous le tuez et allez sur sa case. Sinon vous mourrez.
 
 Ensuite, c'est le tour des zombies. Ils vont plus vite que vous et ont donc droit à 3 pas.
