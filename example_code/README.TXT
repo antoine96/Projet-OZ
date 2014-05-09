@@ -6,10 +6,14 @@ Launch Zombieland Simulator
 
 Launch a Shell and in the directory of Zombieland, type	- ozc -c MainFunctor.oz 
 							- ozengine MainFunctor.ozf --map FILE --zombie INT --item INT --bullet INT
---map FILE= File Containing the map (the path or the name of the file if you are in the directory)
+--map FILE= File Containing the map in .ozp (the path or the name of the file if you are in the directory) 
+  (default value : map_defaut.ozp)
 --zombie INT= Number of zombies
+  (default value : 5)
 --item INT= Total number of items to pick
+  (default value : 5)
 --bullet INT= Initial number of bullets
+  (default value : 3)
 
 For help :
 
@@ -19,17 +23,14 @@ ozengine MainFunctor.ozf --help
 Using/Playing Zombieland Simulator
 --------------
 
-Ce jeu se joue au tour par tour.
-En commencant, vous êtes le Brave et vous avez droit à 2 pas. 
-Vous dirigez le Brave avec les flèches directionnelles. 
-Ramasser un objet vous coute un pas, donc si vous en ramassez un, vous ne ferez qu'un seul pas. Si ce sont des munitions cela ne vous coute pas de pas et vous gagnez une munition.
-%%%A VOIR SI CA COUTE UN PAS OU PAS
-Si vous arrivez sur un Zombie avec des munitions, vous le tuez et allez sur sa case. Sinon vous mourrez.
+This game is turn-based.
+At the beginning, you're the brave and you can move 2 times per turn (you use directional arrows to move).
+Take an object cost one move behalve if it's a bullet (who gives you an additional bullet).
+You'll kill a zombie if you have a bullet and if you arrive on a square with a zombie.
 
-Ensuite, c'est le tour des zombies. Ils vont plus vite que vous et ont donc droit à 3 pas.
-Détruire un objet coute aussi un pas de plus; mais le zombie n'a qu'une chance sur cinq de détruire l'objet, si ce n'est pas le cas, il change de direction.
-%%Le zombie continue dans sa direction précédente jusqu'a rencontrer un obstacle.
-Si le zombie arrive sur vous par le dos, il le tue. Sinon, soit vous n'avez pas de munition et il vous tue tout de même soit vous en avez et vous le tuez.
+Then, it's the turn of zombies. They move faster than you (3 moves per turn).
+They can destroy objects but it costs one move and they're out of luck to do that. If they don't arrive, they'll change their direction.
+On one hand, if the zombie arrive behind you, he kills you. On the other hand, if you've a bullet and if he doesn't arrive behind you, you kill him.
 
 
 Reporting Problems
