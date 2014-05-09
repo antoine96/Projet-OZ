@@ -9,62 +9,28 @@
  *     ozc -c templateZombie.oz  **This will generate templateZombie.ozf
  *     ozengine templateZombie.ozf
  * Examples of execution
- *    ozengine templateZombie.ozf --help
- *    ozengine templateZombie.ozf --map mymap
- *    ozengine templateZombie.ozf -m mymap -s 4 -i 4
+ *    ozengine templateZombie --help
+ *    ozengine templateZombie --map mymap
+ *    ozengine templateZombie -m mymap --z 4 -i 4
  *
  *-------------------------------------------------------------------------
  */
 
-functor
-import
-   Application
-   Property
-   System
-
-define
-  
-   %% Default values
-   MAP      = map
-   NUMZOMBIES = 5
-   ITEMS2PICK    = 5
-   INITIALBULLETS    = 3
-
-   %% For feedback
-   Say    = System.showInfo
-
-   %% Posible arguments
-   Args = {Application.getArgs
-              record(
-                     map(single char:&m type:atom default:MAP)
-                     zombie(single char:&s type:int default:NUMZOMBIES)
-                     item(single char:&b type:int default:ITEMS2PICK)
-                     bullet(single char:&n type:int default:INITIALBULLETS) 
-                     help(single char:[&? &h] default:false)
-                    )}
-
-in
-   
-   %% Help message
-   if Args.help then
-      {Say "Usage: "#{Property.get 'application.url'}#" [option]"}
-      {Say "Options:"}
-      {Say "  -m, --map FILE\tFile containing the map (default "#MAP#")"}
-      {Say "  -s, --zombie INT\tNumber of zombies"}
-      {Say "  -b, --item INT\tTotal number of items to pick"}
-      {Say "  -n, --bullet INT\tInitial number of bullets"}
-      {Say "  -h, -?, --help\tThis help"}
-      {Say "Example : Following lines are equivalent"}
-      {Say "   ozengine templateZombie.ozf -s 4"}
-      {Say "   ozengine templateZombie.ozf --z 4"}
-      {Say "   ozengine templateZombie.ozf --zombie 4"}
-      {Application.exit 0}
-   end
-
-   {System.show 'These are the arguments to run the application'}
-   {Say "Map:\t"#Args.map}
-   {Say "Zombie:\t"#Args.zombie}
-   {Say "Item:\t"#Args.item}
-   {Say "Bullet:\t"#Args.bullet}
-   {Application.exit 0}
-end
+									      functor
+									      import
+										 QTk at 'x-oz://system/wp/QTk.ozf'
+										 System
+										 Application
+									      define
+										 Show = System.show
+										 Desc = td(button(text:"Show"
+												  action:proc {$}
+													    {Show 'Hello World'}
+													 end)
+											   button(text:"Close"
+												  action:proc {$}
+													    {Application.exit 0}
+													 end))
+									      in
+										 {{QTk.build Desc} show}
+									      end
