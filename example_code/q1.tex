@@ -1,0 +1,28 @@
+\section*{Architecture and design of our project}
+First of all, our project is only one file who is a functor. In this functor, we use one port for each zombie and one port for the brave. In this way, we can easily send a message to an actor. There'are a lot of other possibility. For example, we can use one port by CASEEEEEEEEE.\\
+Here's the description of the utility of our functions :\\
+\begin{itemize}
+\item[\texttt{ZombiesNumber} :] creates a list of \texttt{NZombies}\footnote{\texttt{NZombies} is the number of zombies we want on the map} values. Each values is a number between 1 and \texttt{NbZeros} \footnote{\texttt{NbZeros} is the number of free CASEEEE on the map ; the number of CASEEEE where we can put a zombie}
+\item DELZOMBIE
+\item[\texttt{CheckCase} :] is a function which return a boolean. This function is usefull to see if a CASEEEEE contains a food or another thing.
+\item[\texttt{UpdateList} :] is a very important function because without it, we can't remove an object of the map or move the brave.
+\item[\texttt{MaxWidth} :] with this function, we can create the Canvas.
+\item[\texttt{ListZombie} :] this function return a list with the position of eah Zombie.
+\item[\texttt{RemplirListe} :] we have now the initial list who REPRESENT the map.
+\item[\texttt{DrawBox} :] with this function, we can draw the images on the map (with the help of the \texttt{MapList} created by \texttt{RemplirListe}.
+\item[\texttt{InitLayout} :] this function create the initial map. We put \texttt{MapList} as argument. We only use this function at the creation of the map.
+\item[\texttt{BuildZombiePort} :] with this function, we can create ports.
+\item[\texttt{ChooseDirection} :] send a random direction at the stream placed at the position N of the tuple.
+\item[\texttt{updatelistzombie} :] A FAIRE
+\item[\texttt{NiceZombie} et \texttt{NiceBrave} :] draw an image in function of the direction (to have a nice orientation of the zombies and of the brave).
+\item[\texttt{ZombiesMove} :] It's the second most important function of our implementation. It creates the IA of the zombiesn and zombies can interact with the lements of the map.
+\item[\texttt{Game} :] It's the most important function because it controls the brave. Without this function, the brave can't interact with the elements of the map.
+\end{itemize}
+To solve the problem of concurrency, we use ports and, each time, we send the update list as return value of the \texttt{Game} and the \texttt{ZombiesMove} functions. Without this, we can't know how Zombies and Brave progress on the map so it's really an important return value to SYNCHRONIZE the Zombies and the Brave.\\
+
+Our project has a lot of advantages :
+\begin{enumerate}
+\item The number of Zombie can be as big as we want.
+\item The map can have another form than a square.
+\item When a Zombie try 10 times to move but he can't because of something near him, he becomes angry and explode.
+\end{enumerate}
