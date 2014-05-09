@@ -398,7 +398,7 @@ local
 	    if Res==1 then
 	       1
 	    else
-	       {ZombiesMove T N+1 Res.1 Command Res.2#R.2 Res.3 {Append Dir Res.4}}
+	       {ZombiesMove T N+1 Res.1 Command Res.2#R.2 Res.3 {Append Dir Res.4|nil}}
 	    end
 	 end
 	 else MapListe#R.1#L#Dir
