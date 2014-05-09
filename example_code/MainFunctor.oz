@@ -1,15 +1,11 @@
 /*-------------------------------------------------------------------------
  *
- * This is a template for the Project of INGI1131: Zombieland 
- *
- * Compile in Mozart 2.0
- *     ozc -c templateZombie.oz  **This will generate templateZombie.ozf
- *     ozengine templateZombie.ozf
- * Examples of execution
- *    ozengine templateZombie.ozf --help
- *    ozengine templateZombie.ozf --map mymap
- *    ozengine templateZombie.ozf -m mymap --z 4 -i 4
- *
+ * This is a template for the Project of INGI1131: Zombieland
+ * COMPILE ?
+ *     ozc -c MainFunctor.oz
+ *     ozengine MainFunctor.ozf
+ * Help ?
+ *     ozengine MainFunctor.ozf --help
  *-------------------------------------------------------------------------
  */
 functor
@@ -21,11 +17,10 @@ import
    OS
    Open
    Pickle
-   %OS(rand)
 define
    %% Default values
    CD={OS.getCWD}
-   MAP      = CD#'/map_test.ozp'
+   MAP      = CD#'/map_defaut.ozp'
    NUMZOMBIES = 5
    ITEMS2PICK    = 5
    INITIALBULLETS    = 3
@@ -521,5 +516,6 @@ in
 	 {Window bind(event:"<space>" action:toplevel#close)}
       end
    end
-      {Application.exit 0}
+   {Delay 3000}
+   {Application.exit 0}
 end
