@@ -251,7 +251,7 @@ local
    in
       {RemplirListeAcc Z 1 1 Zombies 1}
    end
-   Map={LoadPickle CD#'/map_test.ozp'}
+   Map={LoadPickle CD#'/map_defaut.ozp'}
    LargeurMax={MaxWidth Map}
    HauteurMax={Width Map}
    Desc=td(title:"Zombieland" canvas(
