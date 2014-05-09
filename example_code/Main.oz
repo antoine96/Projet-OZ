@@ -12,9 +12,7 @@ local
    NObjetT
    Xporte
    Yporte
-   L1
    L2
-   LZ %Coordonnées Zombie
    TailleCase=40 %Taille d'une case de la map
    NbZeros %Nombre d'espaces vides dans la map
    Canvas % Le canvas de la carte
@@ -329,7 +327,7 @@ local
       end
    end
     fun{ZombiesMove ZombieListe N MapListe Command R L Dir}
-      Liste
+     
       fun{ZombieGame OldX OldY Command MapListe R L Dir}
 	 fun{ZombieCommand Command Count X Y MapListe R AntiBug L Dir}
 	    {NBullets set(text:R.1)}
