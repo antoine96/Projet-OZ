@@ -12,7 +12,7 @@ Here's the description of the utility of each function :
 \item[\texttt{DelZombie} :] removes a zombie of the \texttt{ListZombie}. We use it when the brave kills a zombie or when a zombie becomes angry and explodes.
 \\
 
-\item[\texttt{CheckCase} :] is a function which return a boolean. This function is usefull to see if a square contains a food or something else.
+\item[\texttt{CheckCase} :] is a function which returns a boolean. This function is usefull to see if a square contains a food or something else.
 \\
 
 \item[\texttt{UpdateList} :] is a very important function because without it, we can't remove an object of the map or move the brave.
@@ -21,7 +21,7 @@ Here's the description of the utility of each function :
 \item[\texttt{MaxWidth} :] with this function, we can create a suitable Canvas.
 \\
 
-\item[\texttt{ListZombie} :] this function returns a list with the position of each Zombie.
+\item[\texttt{ListZombie} :] this function returns a list with the position of each zombie.
 \\
 
 \item[\texttt{RemplirListe} :] we have now the initial list who represents the map.
@@ -52,7 +52,7 @@ Here's the description of the utility of each function :
 \\
 
 \end{itemize}
-To solve the problem of concurrency, we use ports and, each time, we send the update list as return value of the \texttt{Game} and the \texttt{ZombiesMove} functions. Without this, we can't know how zombies and brave progress on the map so it's really an important return value to synchronize the Zombies with/and the Brave.\\
+To solve the problem of concurrency, we use ports and, each time, we send the update list as return value of the \texttt{Game} and the \texttt{ZombiesMove} functions. Without this, we can't know how zombies and brave progress on the map so it's really an important return value to synchronize the zombies with/and the brave. At the beginning, we tried to synchronize with threads (as we've seen with the ping pong example) but it's a bit difficult to pass the \texttt{MapList} between \textt{Game} and \texttt{ZombiesMove}.\\
 
 Our project has a lot of advantages :
 \begin{enumerate}
@@ -63,4 +63,7 @@ Our project has a lot of advantages :
 \\
 
 \item When a zombie tries 10 times to move but he can't because of something near him, he becomes angry and explodes.
+\\
+
+\item There're four images for zombies and four for the brave so we can know where they look at. It's important because if the brave has bullets, zombies only kills him if they're behind.
 \end{enumerate}
