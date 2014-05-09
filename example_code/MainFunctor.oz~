@@ -356,11 +356,11 @@ define
    end
    fun{ZombiesMove ZombieListe N MapListe Command R L}
       Liste
-      fun{ZombieGame OldX OldY Command MapListe R L}
-	 fun{ZombieCommand Command Count X Y MapListe R AntiBug L}
+      fun{ZombieGame OldX OldY Command MapListe R}
+	 fun{ZombieCommand Command Count X Y MapListe R AntiBug}
 	    {NBullets set(text:R.1)}
 	    if Count == 3 then
-	       MapListe#R.1#L
+	       MapListe#R.1
 	    else
 	       IX IY in
 	       case Command of r(DX DY)|T then
@@ -368,15 +368,15 @@ define
 		  IY = Y+DY
 		  if AntiBug==10 then
 		     {DrawBox Floor X Y}
-		     {ZombieCommand T 3 X Y {UpdateList MapListe X Y Floor} R 0 {DelZombie X Y L}}
+		     {ZombieCommand T 3 X Y {UpdateList MapListe X Y Floor} R 0}
 		  elseif {CheckCase MapListe IX IY Wall} orelse {CheckCase MapListe IX IY Zombie} then
 		     {ChooseDirection N}
-		     {ZombieCommand T Count X Y MapListe R AntiBug+1 L} 
+		     {ZombieCommand T Count X Y MapListe R AntiBug+1} 
 		  elseif {CheckCase MapListe IX IY Floor}==true then
 		     {Delay D}
 		     {DrawBox Floor X Y}
 		     {NiceZombie DX DY IX IY}
-		     {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0 {UpdateListZombie X Y IX IY L}}
+		     {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0}
 		  elseif {CheckCase MapListe IX IY Brave}==true then
 		     local Nammo DirX DirY in
 			Nammo = R.1
@@ -390,7 +390,7 @@ define
 			else
 			   {Delay D}
 			   {DrawBox Floor X Y}
-			   {ZombieCommand Command 3 X Y {UpdateList MapListe X Y Floor} (Nammo-1)#R.2 0 {DelZombie X Y L}} %Zombie se fait tuer, je sais pas trop comment faire. Deja mis a jour la liste. Comment passer au zombie suivant?
+			   {ZombieCommand Command 3 X Y {UpdateList MapListe X Y Floor} (Nammo-1)#R.2 0} %Zombie se fait tuer, je sais pas trop comment faire. Deja mis a jour la liste. Comment passer au zombie suivant?
 			end
 		     end
 		  elseif {CheckCase MapListe IX IY Medicine} orelse {CheckCase MapListe IX IY Bullets} orelse {CheckCase MapListe IX IY Food} then
@@ -398,31 +398,31 @@ define
 			{Delay D}
 			{DrawBox Floor X Y}
 			{NiceZombie DX DY IX IY}
-			{ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0 {UpdateListZombie X Y IX IY L}}
+			{ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0}
 		     else
 			{ChooseDirection N}
-			{ZombieCommand T Count X Y MapListe R AntiBug+1 L}
+			{ZombieCommand T Count X Y MapListe R AntiBug+1}
 		     end
 		  else
 		     {ChooseDirection N}
-		     {ZombieCommand T Count X Y MapListe R AntiBug+1 L}
+		     {ZombieCommand T Count X Y MapListe R AntiBug+1}
 		  end
 	       end
 	    end
 	 end
       in
-	 {ZombieCommand Command 0 OldX OldY MapListe R 0 L}
+	 {ZombieCommand Command 0 OldX OldY MapListe R 0}
       end
    in
       case ZombieListe of nil then MapListe#R.1
       [] r(X Y)|T then
 	 local Res in
 	    {ChooseDirection N}
-	    Res={ZombieGame X Y Command.N MapListe R L}
+	    Res={ZombieGame X Y Command.N MapListe R}
 	    if Res==1 then
 	       1
 	    else
-	       {ZombiesMove T N+1 Res.1 Command Res.2#R.2 Res.3}
+	       {ZombiesMove T N+1 Res.1 Command Res.2#R.2}
 	    end
 	 end
       end
@@ -437,7 +437,7 @@ define
 	       if Res==1 then
 		  1
 	       else
-		  {UserCommand Command 0 X Y Res.1 Res.2  Nobjettake R Res.3}
+		  {UserCommand Command 0 X Y Res.1 Res.2  Nobjettake R Res.3}%%L a changer
 	       end
 	    end
 	 else
