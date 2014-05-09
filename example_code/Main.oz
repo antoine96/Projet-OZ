@@ -2,7 +2,11 @@ local
    QTk
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RECUPERATION DES ARGUMENTS
+<<<<<<< HEAD
    NZombies=3 %Nombre de zombies par défaut (quand on ne passe pas en argument)
+=======
+   NZombies=20 %Nombre de zombies par défaut (quand on ne passe pas en argument)
+>>>>>>> parent of 1bf99d7... Rangement
    NObjetNeeded=3 %Nombre d'objets nécessaires par défaut (quand on ne passe pas en argument)
    NAmmo=2 %Nombre de balles par défaut (quand on ne passe pas en argument)
    %TODO RECUPERER LES ARGUMENTS
@@ -12,7 +16,13 @@ local
    NObjetT
    Xporte
    Yporte
+<<<<<<< HEAD
    L2
+=======
+   L1
+   L2
+   LZ %Coordonnées Zombie
+>>>>>>> parent of 1bf99d7... Rangement
    TailleCase=40 %Taille d'une case de la map
    NbZeros %Nombre d'espaces vides dans la map
    Canvas % Le canvas de la carte
@@ -132,6 +142,7 @@ local
 
 
 
+<<<<<<< HEAD
       fun{DelZombie X Y L}
       case L of nil then nil
       []r(Col Ligne)|T then
@@ -145,6 +156,9 @@ local
 	 end
       end
    end
+=======
+   
+>>>>>>> parent of 1bf99d7... Rangement
   
    fun {CheckCase List X Y Image}
       case List of nil then Image=='Floor'
@@ -249,7 +263,11 @@ local
    in
       {RemplirListeAcc Z 1 1 Zombies 1}
    end
+<<<<<<< HEAD
    Map={LoadPickle CD#'/map_defaut.ozp'}
+=======
+   Map={LoadPickle CD#'/map_test.ozp'}
+>>>>>>> parent of 1bf99d7... Rangement
    LargeurMax={MaxWidth Map}
    HauteurMax={Width Map}
    Desc=td(title:"Zombieland" canvas(
@@ -299,8 +317,12 @@ local
       end
    end
    fun {UpdateListZombie List X Y XN YN}
+<<<<<<< HEAD
       case List of nil then nil
 	 []r(Col Ligne)|T then
+=======
+      case List of r(Col Ligne)|T then
+>>>>>>> parent of 1bf99d7... Rangement
 	 if Col==X then
 	    if Ligne==Y then
 	       r(XN YN)|T
@@ -326,6 +348,7 @@ local
       else {DrawBox Brave IX IY}
       end
    end
+<<<<<<< HEAD
     fun{ZombiesMove ZombieListe N MapListe Command R L Dir}
      
       fun{ZombieGame OldX OldY Command MapListe R L Dir}
@@ -334,6 +357,15 @@ local
 
 	    if Count == 3 then
 	       MapListe#R.1#L#Dir
+=======
+   fun{ZombiesMove ZombieListe N MapListe Command R}
+      Liste
+      fun{ZombieGame OldX OldY Command MapListe R}
+	 fun{ZombieCommand Command Count X Y MapListe R AntiBug}
+	    {NBullets set(text:R.1)}
+	    if Count == 3 then
+	       MapListe#R.1
+>>>>>>> parent of 1bf99d7... Rangement
 	    else
 	       IX IY in
 	       case Command of r(DX DY)|T then
@@ -341,16 +373,27 @@ local
 		  IY = Y+DY
 		  if AntiBug==10 then
 		     {DrawBox Floor X Y}
+<<<<<<< HEAD
 
 		     {ZombieCommand T 3 X Y {UpdateList MapListe X Y Floor} R 0 {DelZombie X Y L} Dir}
 		  elseif {CheckCase MapListe IX IY Wall} orelse {CheckCase MapListe IX IY Zombie} then
 		     {ChooseDirection N}
 		     {ZombieCommand T Count X Y MapListe R AntiBug+1 L Dir} 
+=======
+		     {ZombieCommand T 3 X Y {UpdateList MapListe X Y Floor} R 0}
+		  elseif {CheckCase MapListe IX IY Wall} orelse {CheckCase MapListe IX IY Zombie} then
+		     {ChooseDirection N}
+		     {ZombieCommand T Count X Y MapListe R AntiBug+1} 
+>>>>>>> parent of 1bf99d7... Rangement
 		  elseif {CheckCase MapListe IX IY Floor}==true then
 		     {Delay D}
 		     {DrawBox Floor X Y}
 		     {NiceZombie DX DY IX IY}
+<<<<<<< HEAD
 		     {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0 {UpdateListZombie L X Y IX IY} r(DX DY)}
+=======
+		     {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0}
+>>>>>>> parent of 1bf99d7... Rangement
 		  elseif {CheckCase MapListe IX IY Brave}==true then
 		     local Nammo DirX DirY in
 			Nammo = R.1
@@ -364,7 +407,11 @@ local
 			else
 			   {Delay D}
 			   {DrawBox Floor X Y}
+<<<<<<< HEAD
 			   {ZombieCommand Command 3 X Y {UpdateList MapListe X Y Floor} (Nammo-1)#R.2 0 {DelZombie X Y L} Dir} %Zombie se fait tuer, je sais pas trop comment faire. Deja mis a jour la liste. Comment passer au zombie suivant?
+=======
+			   {ZombieCommand Command 3 X Y {UpdateList MapListe X Y Floor} (Nammo-1)#R.2 0} %Zombie se fait tuer, je sais pas trop comment faire. Deja mis a jour la liste. Comment passer au zombie suivant?
+>>>>>>> parent of 1bf99d7... Rangement
 			end
 		     end
 		  elseif {CheckCase MapListe IX IY Medicine} orelse {CheckCase MapListe IX IY Bullets} orelse {CheckCase MapListe IX IY Food} then
@@ -372,6 +419,7 @@ local
 			{Delay D}
 			{DrawBox Floor X Y}
 			{NiceZombie DX DY IX IY}
+<<<<<<< HEAD
 			{ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0 {UpdateListZombie L X Y IX IY } r(DX DY)}
 		     else
 			{ChooseDirection N}
@@ -380,11 +428,22 @@ local
 		  else
 		     {ChooseDirection N}
 		     {ZombieCommand T Count X Y MapListe R AntiBug+1 L Dir}
+=======
+			{ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0}
+		     else
+			{ChooseDirection N}
+			{ZombieCommand T Count X Y MapListe R AntiBug+1}
+		     end
+		  else
+		     {ChooseDirection N}
+		     {ZombieCommand T Count X Y MapListe R AntiBug+1}
+>>>>>>> parent of 1bf99d7... Rangement
 		  end
 	       end
 	    end
 	 end
       in
+<<<<<<< HEAD
 	 {ZombieCommand Command 0 OldX OldY MapListe R 0 L Dir}
       end
    in
@@ -404,15 +463,43 @@ local
    end
    fun{Game OldX OldY Command List}
       fun{UserCommand Command Count X Y List Nammo Nobjettake R L Dir}
+=======
+	 {ZombieCommand Command 0 OldX OldY MapListe R 0}
+      end
+   in
+      case ZombieListe of nil then MapListe#R.1
+      [] r(X Y)|T then
+	 local Res in
+	    {ChooseDirection N}
+	    Res={ZombieGame X Y Command.N MapListe R}
+	    if Res==1 then
+	       1
+	    else
+	       {ZombiesMove T N+1 Res.1 Command Res.2#R.2}
+	    end
+	 end
+      end
+   end
+   fun{Game OldX OldY Command List}
+      fun{UserCommand Command Count X Y List Nammo Nobjettake R}
+>>>>>>> parent of 1bf99d7... Rangement
 	 {NBullets set(text:Nammo)}
 	 {NObjetT set(text:Nobjettake)}
 	 if Count==2 then
 	    local Res in
+<<<<<<< HEAD
 	       Res={ZombiesMove L 1 List CommandZombie Nammo#R L Dir}
 	       if Res==1 then
 		  1
 	       else
 		  {UserCommand Command 0 X Y Res.1 Res.2  Nobjettake R Res.3 Res.4}
+=======
+	       Res={ZombiesMove {ListZombie List} 1 List CommandZombie Nammo#R}
+	       if Res==1 then
+		  1
+	       else
+		  {UserCommand Command 0 X Y Res.1 Res.2  Nobjettake R}
+>>>>>>> parent of 1bf99d7... Rangement
 	       end
 	    end
 	 else
@@ -422,7 +509,11 @@ local
 		  IX = X+DX
 		  IY = Y+DY
 		  if {CheckCase List IX IY Wall} then
+<<<<<<< HEAD
 		     {UserCommand T Count X Y List Nammo Nobjettake R L Dir}
+=======
+		     {UserCommand T Count X Y List Nammo Nobjettake R}
+>>>>>>> parent of 1bf99d7... Rangement
 		  elseif {CheckCase List IX IY Zombie} then
 		     if Nammo==0 then
 			{DrawBox Floor X Y}
@@ -430,20 +521,31 @@ local
 		     else
 			{DrawBox Floor X Y}
 			{NiceBrave DX DY IX IY}
+<<<<<<< HEAD
 			{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo-1 Nobjettake r(DX DY) {DelZombie IX IY L} Dir}
+=======
+			{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo-1 Nobjettake r(DX DY)}
+>>>>>>> parent of 1bf99d7... Rangement
 		     end
 		  elseif{CheckCase List IX IY Bullets} then
 		     if Count<1 then
 			{DrawBox Floor  X Y}
 			{NiceBrave DX DY IX IY}
+<<<<<<< HEAD
 			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo+1 Nobjettake r(DX DY) L Dir}
 		     else
 			{UserCommand T Count X Y List Nammo Nobjettake R L Dir}
+=======
+			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo+1 Nobjettake r(DX DY)}
+		     else
+			{UserCommand T Count X Y List Nammo Nobjettake R}
+>>>>>>> parent of 1bf99d7... Rangement
 		     end
 		  elseif{CheckCase List IX IY Medicine} orelse {CheckCase List IX IY Food} then
 		     if Count<1 then
 			{DrawBox Floor  X Y}
 			{NiceBrave DX DY IX IY}
+<<<<<<< HEAD
 			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake+1 r(DX DY) L Dir}
 		     else
 			{UserCommand T Count X Y List Nammo Nobjettake R L Dir}
@@ -453,13 +555,30 @@ local
 								{DrawBox Floor X Y}
 								{NiceBrave DX DY IX IY}
 								{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY) L Dir} 
+=======
+			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake+1 r(DX DY)}
+		     else
+			{UserCommand T Count X Y List Nammo Nobjettake R}
+		     end
+		  elseif IX==Xporte andthen IY==Yporte then  if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count IX IY List Nammo Nobjettake R}
+							     else
+								{DrawBox Floor X Y}
+								{NiceBrave DX DY IX IY}
+								{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY)} 
+>>>>>>> parent of 1bf99d7... Rangement
 							     end
 		  elseif{CheckCase List IX IY Floor} then
 		     {DrawBox Floor  X Y}
 		     {NiceBrave DX DY IX IY}
+<<<<<<< HEAD
 		     {UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY) L Dir}
 		  else
 		     {UserCommand T Count X Y List Nammo Nobjettake R L Dir}
+=======
+		     {UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY)}
+		  else
+		     {UserCommand T Count X Y List Nammo Nobjettake R}
+>>>>>>> parent of 1bf99d7... Rangement
 		  end
 	       [] win|T then
 		  {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
@@ -473,12 +592,19 @@ local
       end
       
    in
+<<<<<<< HEAD
       {UserCommand Command 0 OldX OldY List NAmmo NObjetTake nil {ListZombie List} nil}
+=======
+      {UserCommand Command 0 OldX OldY List NAmmo NObjetTake nil}
+>>>>>>> parent of 1bf99d7... Rangement
    end
 in
    {Window show}
    MapList={RemplirListe Map {ZombiesNumber NZombies Map}}
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 1bf99d7... Rangement
    {InitLayout MapList}
    {BuildZombiePort NZombies CommandZombie CommandZombiePort}
    {Canvas create(text 55 10 text:"Number of bullets :" fill:red)}
