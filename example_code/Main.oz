@@ -4,7 +4,11 @@ local
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RECUPERATION DES ARGUMENTS
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    NZombies=3 %Nombre de zombies par défaut (quand on ne passe pas en argument)
+=======
+   NZombies=20 %Nombre de zombies par défaut (quand on ne passe pas en argument)
+>>>>>>> parent of 1bf99d7... Rangement
 =======
    NZombies=20 %Nombre de zombies par défaut (quand on ne passe pas en argument)
 >>>>>>> parent of 1bf99d7... Rangement
@@ -22,7 +26,13 @@ local
    Yporte
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    L2
+=======
+   L1
+   L2
+   LZ %Coordonnées Zombie
+>>>>>>> parent of 1bf99d7... Rangement
 =======
    L1
    L2
@@ -154,6 +164,7 @@ local
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       fun{DelZombie X Y L}
       case L of nil then nil
       []r(Col Ligne)|T then
@@ -167,6 +178,9 @@ local
 	 end
       end
    end
+=======
+   
+>>>>>>> parent of 1bf99d7... Rangement
 =======
    
 >>>>>>> parent of 1bf99d7... Rangement
@@ -279,7 +293,11 @@ local
    end
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    Map={LoadPickle CD#'/map_defaut.ozp'}
+=======
+   Map={LoadPickle CD#'/map_test.ozp'}
+>>>>>>> parent of 1bf99d7... Rangement
 =======
    Map={LoadPickle CD#'/map_test.ozp'}
 >>>>>>> parent of 1bf99d7... Rangement
@@ -337,8 +355,12 @@ local
    fun {UpdateListZombie List X Y XN YN}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       case List of nil then nil
 	 []r(Col Ligne)|T then
+=======
+      case List of r(Col Ligne)|T then
+>>>>>>> parent of 1bf99d7... Rangement
 =======
       case List of r(Col Ligne)|T then
 >>>>>>> parent of 1bf99d7... Rangement
@@ -372,6 +394,7 @@ local
    end
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     fun{ZombiesMove ZombieListe N MapListe Command R L Dir}
      
       fun{ZombieGame OldX OldY Command MapListe R L Dir}
@@ -383,6 +406,8 @@ local
 =======
 =======
 >>>>>>> parent of 1bf99d7... Rangement
+=======
+>>>>>>> parent of 1bf99d7... Rangement
    fun{ZombiesMove ZombieListe N MapListe Command R}
       Liste
       fun{ZombieGame OldX OldY Command MapListe R}
@@ -391,6 +416,9 @@ local
 	    if Count == 3 then
 	       MapListe#R.1
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of 1bf99d7... Rangement
+=======
 >>>>>>> parent of 1bf99d7... Rangement
 =======
 >>>>>>> parent of 1bf99d7... Rangement
@@ -403,6 +431,7 @@ local
 		     {DrawBox Floor X Y}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 		     {ZombieCommand T 3 X Y {UpdateList MapListe X Y Floor} R 0 {DelZombie X Y L} Dir}
 		  elseif {CheckCase MapListe IX IY Wall} orelse {CheckCase MapListe IX IY Zombie} then
@@ -411,11 +440,16 @@ local
 =======
 =======
 >>>>>>> parent of 1bf99d7... Rangement
+=======
+>>>>>>> parent of 1bf99d7... Rangement
 		     {ZombieCommand T 3 X Y {UpdateList MapListe X Y Floor} R 0}
 		  elseif {CheckCase MapListe IX IY Wall} orelse {CheckCase MapListe IX IY Zombie} then
 		     {ChooseDirection N}
 		     {ZombieCommand T Count X Y MapListe R AntiBug+1} 
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of 1bf99d7... Rangement
+=======
 >>>>>>> parent of 1bf99d7... Rangement
 =======
 >>>>>>> parent of 1bf99d7... Rangement
@@ -425,7 +459,11 @@ local
 		     {NiceZombie DX DY IX IY}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		     {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0 {UpdateListZombie L X Y IX IY} r(DX DY)}
+=======
+		     {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0}
+>>>>>>> parent of 1bf99d7... Rangement
 =======
 		     {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0}
 >>>>>>> parent of 1bf99d7... Rangement
@@ -447,7 +485,11 @@ local
 			   {DrawBox Floor X Y}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			   {ZombieCommand Command 3 X Y {UpdateList MapListe X Y Floor} (Nammo-1)#R.2 0 {DelZombie X Y L} Dir} %Zombie se fait tuer, je sais pas trop comment faire. Deja mis a jour la liste. Comment passer au zombie suivant?
+=======
+			   {ZombieCommand Command 3 X Y {UpdateList MapListe X Y Floor} (Nammo-1)#R.2 0} %Zombie se fait tuer, je sais pas trop comment faire. Deja mis a jour la liste. Comment passer au zombie suivant?
+>>>>>>> parent of 1bf99d7... Rangement
 =======
 			   {ZombieCommand Command 3 X Y {UpdateList MapListe X Y Floor} (Nammo-1)#R.2 0} %Zombie se fait tuer, je sais pas trop comment faire. Deja mis a jour la liste. Comment passer au zombie suivant?
 >>>>>>> parent of 1bf99d7... Rangement
@@ -463,6 +505,7 @@ local
 			{NiceZombie DX DY IX IY}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			{ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0 {UpdateListZombie L X Y IX IY } r(DX DY)}
 		     else
 			{ChooseDirection N}
@@ -474,6 +517,8 @@ local
 =======
 =======
 >>>>>>> parent of 1bf99d7... Rangement
+=======
+>>>>>>> parent of 1bf99d7... Rangement
 			{ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0}
 		     else
 			{ChooseDirection N}
@@ -483,6 +528,9 @@ local
 		     {ChooseDirection N}
 		     {ZombieCommand T Count X Y MapListe R AntiBug+1}
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of 1bf99d7... Rangement
+=======
 >>>>>>> parent of 1bf99d7... Rangement
 =======
 >>>>>>> parent of 1bf99d7... Rangement
@@ -491,6 +539,7 @@ local
 	    end
 	 end
       in
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	 {ZombieCommand Command 0 OldX OldY MapListe R 0 L Dir}
@@ -515,6 +564,8 @@ local
 =======
 =======
 >>>>>>> parent of 1bf99d7... Rangement
+=======
+>>>>>>> parent of 1bf99d7... Rangement
 	 {ZombieCommand Command 0 OldX OldY MapListe R 0}
       end
    in
@@ -534,6 +585,9 @@ local
    fun{Game OldX OldY Command List}
       fun{UserCommand Command Count X Y List Nammo Nobjettake R}
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of 1bf99d7... Rangement
+=======
 >>>>>>> parent of 1bf99d7... Rangement
 =======
 >>>>>>> parent of 1bf99d7... Rangement
@@ -541,6 +595,7 @@ local
 	 {NObjetT set(text:Nobjettake)}
 	 if Count==2 then
 	    local Res in
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	       Res={ZombiesMove L 1 List CommandZombie Nammo#R L Dir}
@@ -551,12 +606,17 @@ local
 =======
 =======
 >>>>>>> parent of 1bf99d7... Rangement
+=======
+>>>>>>> parent of 1bf99d7... Rangement
 	       Res={ZombiesMove {ListZombie List} 1 List CommandZombie Nammo#R}
 	       if Res==1 then
 		  1
 	       else
 		  {UserCommand Command 0 X Y Res.1 Res.2  Nobjettake R}
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of 1bf99d7... Rangement
+=======
 >>>>>>> parent of 1bf99d7... Rangement
 =======
 >>>>>>> parent of 1bf99d7... Rangement
@@ -571,7 +631,11 @@ local
 		  if {CheckCase List IX IY Wall} then
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		     {UserCommand T Count X Y List Nammo Nobjettake R L Dir}
+=======
+		     {UserCommand T Count X Y List Nammo Nobjettake R}
+>>>>>>> parent of 1bf99d7... Rangement
 =======
 		     {UserCommand T Count X Y List Nammo Nobjettake R}
 >>>>>>> parent of 1bf99d7... Rangement
@@ -587,7 +651,11 @@ local
 			{NiceBrave DX DY IX IY}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo-1 Nobjettake r(DX DY) {DelZombie IX IY L} Dir}
+=======
+			{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo-1 Nobjettake r(DX DY)}
+>>>>>>> parent of 1bf99d7... Rangement
 =======
 			{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo-1 Nobjettake r(DX DY)}
 >>>>>>> parent of 1bf99d7... Rangement
@@ -601,9 +669,15 @@ local
 			{NiceBrave DX DY IX IY}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo+1 Nobjettake r(DX DY) L Dir}
 		     else
 			{UserCommand T Count X Y List Nammo Nobjettake R L Dir}
+=======
+			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo+1 Nobjettake r(DX DY)}
+		     else
+			{UserCommand T Count X Y List Nammo Nobjettake R}
+>>>>>>> parent of 1bf99d7... Rangement
 =======
 			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo+1 Nobjettake r(DX DY)}
 		     else
@@ -621,6 +695,7 @@ local
 			{NiceBrave DX DY IX IY}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake+1 r(DX DY) L Dir}
 		     else
 			{UserCommand T Count X Y List Nammo Nobjettake R L Dir}
@@ -633,6 +708,8 @@ local
 =======
 =======
 >>>>>>> parent of 1bf99d7... Rangement
+=======
+>>>>>>> parent of 1bf99d7... Rangement
 			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake+1 r(DX DY)}
 		     else
 			{UserCommand T Count X Y List Nammo Nobjettake R}
@@ -643,6 +720,9 @@ local
 								{NiceBrave DX DY IX IY}
 								{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY)} 
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of 1bf99d7... Rangement
+=======
 >>>>>>> parent of 1bf99d7... Rangement
 =======
 >>>>>>> parent of 1bf99d7... Rangement
@@ -652,9 +732,15 @@ local
 		     {NiceBrave DX DY IX IY}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		     {UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY) L Dir}
 		  else
 		     {UserCommand T Count X Y List Nammo Nobjettake R L Dir}
+=======
+		     {UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY)}
+		  else
+		     {UserCommand T Count X Y List Nammo Nobjettake R}
+>>>>>>> parent of 1bf99d7... Rangement
 =======
 		     {UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY)}
 		  else
@@ -680,7 +766,11 @@ local
    in
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       {UserCommand Command 0 OldX OldY List NAmmo NObjetTake nil {ListZombie List} nil}
+=======
+      {UserCommand Command 0 OldX OldY List NAmmo NObjetTake nil}
+>>>>>>> parent of 1bf99d7... Rangement
 =======
       {UserCommand Command 0 OldX OldY List NAmmo NObjetTake nil}
 >>>>>>> parent of 1bf99d7... Rangement
@@ -693,7 +783,10 @@ in
    MapList={RemplirListe Map {ZombiesNumber NZombies Map}}
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 1bf99d7... Rangement
 =======
 >>>>>>> parent of 1bf99d7... Rangement
 =======
