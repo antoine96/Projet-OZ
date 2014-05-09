@@ -176,7 +176,6 @@ define
       end
    end
    
-   end
    fun {CheckCase List X Y Image}
       case List of nil then Image=='Floor'
       []r(Img Col Ligne)|T then
@@ -338,6 +337,8 @@ define
 	 else
 	    List.1|{UpdateListZombie T X Y XN YN}
 	 end
+      else nil
+	 
       end
    end
    proc{NiceZombie DX DY IX IY}
