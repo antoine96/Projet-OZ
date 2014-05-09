@@ -476,6 +476,7 @@ local
 in
    {Window show}
    MapList={RemplirListe Map {ZombiesNumber NZombies Map}}
+   {Browse 1}
    {InitLayout MapList}
    {BuildZombiePort NZombies CommandZombie CommandZombiePort}
    {Canvas create(text 55 10 text:"Number of bullets :" fill:red)}
