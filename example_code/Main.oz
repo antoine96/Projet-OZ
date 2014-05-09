@@ -2,7 +2,7 @@ local
    QTk
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RECUPERATION DES ARGUMENTS
-   NZombies=70 %Nombre de zombies par défaut (quand on ne passe pas en argument)
+   NZombies=20 %Nombre de zombies par défaut (quand on ne passe pas en argument)
    NObjetNeeded=3 %Nombre d'objets nécessaires par défaut (quand on ne passe pas en argument)
    NAmmo=2 %Nombre de balles par défaut (quand on ne passe pas en argument)
    %TODO RECUPERER LES ARGUMENTS
@@ -28,7 +28,7 @@ local
    CommandPort = {NewPort Command}
    CommandZombie
    CommandZombiePort
-   D=500
+   D=200
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHARGEMENT DES IMAGES
    CD = {OS.getCWD}
    Brave = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/brave.gif')}
@@ -307,7 +307,7 @@ local
 	       case Command of r(DX DY)|T then
 		  IX = X+DX
 		  IY = Y+DY
-		  if AntiBug==5 then
+		  if AntiBug==10 then
 		     {DrawBox Floor X Y}
 		     {ZombieCommand T 3 X Y {UpdateList MapListe X Y Floor} R 0}
 		  elseif {CheckCase MapListe IX IY Wall} orelse {CheckCase MapListe IX IY Zombie} then
@@ -415,7 +415,10 @@ local
 			{UserCommand T Count X Y List Nammo Nobjettake R} %PROBLEME ICI
 		     end
 		  elseif IX==Xporte andthen IY==Yporte then  if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count IX IY List Nammo Nobjettake R}
-							     else 1
+							     else
+								{DrawBox Floor X Y}
+								{DrawBox Brave IX IY}
+								{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY)} 
 							     end
 		  elseif{CheckCase List IX IY Floor} then
 		     {DrawBox Floor  X Y}
@@ -451,11 +454,11 @@ in
    {Canvas create(text 475 10 text:NObjetNeeded fill:red)}
    L2={Game Xbrave Ybrave Command MapList}
    if L2==1 then
-   {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
-   {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2) text:"GAME OVER" fill:red)}
-   {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2)+15 text:"Press space bar to close the window" fill:red)}
-   {Canvas create(text (TailleCase*LargeurMax)-130 (TailleCase*HauteurMax)-20 text:"By Daubry Benjamin & Van Malleghem Antoine" fill:red)}
-   {Window bind(event:"<space>" action:toplevel#close)}
+      {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
+      {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2) text:"GAME OVER" fill:red)}
+      {Canvas create(text ((TailleCase*LargeurMax) div 2) ((TailleCase*HauteurMax) div 2)+15 text:"Press space bar to close the window" fill:red)}
+      {Canvas create(text (TailleCase*LargeurMax)-130 (TailleCase*HauteurMax)-20 text:"By Daubry Benjamin & Van Malleghem Antoine" fill:red)}
+      {Window bind(event:"<space>" action:toplevel#close)}
    end
    
 end
