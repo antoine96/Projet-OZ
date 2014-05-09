@@ -161,6 +161,22 @@ define
 	 {Trier {ChooseRand NZombies {List NbZeros} NbZeros}}
       end
    end
+
+   fun{DelZombie X Y L}
+      case L of nil then nil
+      []r(Col Ligne)|T then
+	 if Col==X then
+	    if Ligne==Y then T
+	    else
+	       r(Col Ligne)|{DelZombie X Y T}
+	    end
+	 else
+	    r(Col Ligne)|{DelZombie X Y T}
+	 end
+      end
+   end
+   
+   end
    fun {CheckCase List X Y Image}
       case List of nil then Image=='Floor'
       []r(Img Col Ligne)|T then
@@ -338,7 +354,7 @@ define
       else {DrawBox Brave IX IY}
       end
    end
-   fun{ZombiesMove ZombieListe N MapListe Command R}
+   fun{ZombiesMove ZombieListe N MapListe Command R L}
       Liste
       fun{ZombieGame OldX OldY Command MapListe R}
 	 fun{ZombieCommand Command Count X Y MapListe R AntiBug}
@@ -412,16 +428,16 @@ define
       end
    end
    fun{Game OldX OldY Command List}
-      fun{UserCommand Command Count X Y List Nammo Nobjettake R}
+      fun{UserCommand Command Count X Y List Nammo Nobjettake R L}
 	 {NBullets set(text:Nammo)}
 	 {NObjetT set(text:Nobjettake)}
 	 if Count==2 then
 	    local Res in
-	       Res={ZombiesMove {ListZombie List} 1 List CommandZombie Nammo#R}
+	       Res={ZombiesMove L 1 List CommandZombie Nammo#R L}
 	       if Res==1 then
 		  1
 	       else
-		  {UserCommand Command 0 X Y Res.1 Res.2  Nobjettake R}
+		  {UserCommand Command 0 X Y Res.1 Res.2  Nobjettake R Res.3}%%L a changer
 	       end
 	    end
 	 else
@@ -431,7 +447,7 @@ define
 		  IX = X+DX
 		  IY = Y+DY
 		  if {CheckCase List IX IY Wall} then
-		     {UserCommand T Count X Y List Nammo Nobjettake R}
+		     {UserCommand T Count X Y List Nammo Nobjettake R L}
 		  elseif {CheckCase List IX IY Zombie} then
 		     if Nammo==0 then
 			{DrawBox Floor X Y}
@@ -439,36 +455,36 @@ define
 		     else
 			{DrawBox Floor X Y}
 			{NiceBrave DX DY IX IY}
-			{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo-1 Nobjettake r(DX DY)}
+			{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo-1 Nobjettake r(DX DY) {DelZombie IX IY L}}
 		     end
 		  elseif{CheckCase List IX IY Bullets} then
 		     if Count<1 then
 			{DrawBox Floor  X Y}
 			{NiceBrave DX DY IX IY}
-			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo+1 Nobjettake r(DX DY)}
+			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo+1 Nobjettake r(DX DY) L}
 		     else
-			{UserCommand T Count X Y List Nammo Nobjettake R}
+			{UserCommand T Count X Y List Nammo Nobjettake R L}
 		     end
 		  elseif{CheckCase List IX IY Medicine} orelse {CheckCase List IX IY Food} then
 		     if Count<1 then
 			{DrawBox Floor  X Y}
 			{NiceBrave DX DY IX IY}
-			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake+1 r(DX DY)}
+			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake+1 r(DX DY) L}
 		     else
-			{UserCommand T Count X Y List Nammo Nobjettake R}
+			{UserCommand T Count X Y List Nammo Nobjettake R L}
 		     end
-		  elseif IX==Xporte andthen IY==Yporte then  if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count IX IY List Nammo Nobjettake R}
+		  elseif IX==Xporte andthen IY==Yporte then  if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count IX IY List Nammo Nobjettake R L}
 							     else
 								{DrawBox Floor X Y}
 								{NiceBrave DX DY IX IY}
-								{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY)} 
+								{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY) L} 
 							     end
 		  elseif{CheckCase List IX IY Floor} then
 		     {DrawBox Floor  X Y}
 		     {NiceBrave DX DY IX IY}
-		     {UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY)}
+		     {UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY) L}
 		  else
-		     {UserCommand T Count X Y List Nammo Nobjettake R}
+		     {UserCommand T Count X Y List Nammo Nobjettake R L}
 		  end
 	       [] win|T then
 		  {Canvas create(rect 0 0 TailleCase*LargeurMax TailleCase*HauteurMax fill:black outline:black)}
@@ -482,7 +498,7 @@ define
       end
       
    in
-      {UserCommand Command 0 OldX OldY List NAmmo NObjetTake nil}
+      {UserCommand Command 0 OldX OldY List NAmmo NObjetTake nil {ListZombie List}}
    end
 in
    
