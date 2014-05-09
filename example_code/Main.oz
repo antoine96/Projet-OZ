@@ -32,7 +32,13 @@ local
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHARGEMENT DES IMAGES
    CD = {OS.getCWD}
    Brave = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/brave.gif')}
+   BraveH = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/braveH.gif')}
+   BraveD = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/braveD.gif')}
+   BraveB = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/braveB.gif')}
    Zombie = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/zombie.gif')}
+   ZombieH = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/zombieH.gif')}
+   ZombieD = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/zombieD.gif')}
+   ZombieB = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/zombieB.gif')}
    Food = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/food.gif')}
    Bullets = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/bullets.gif')}
    Medicine = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/medicine.gif')}
@@ -295,6 +301,20 @@ local
 	 end
       end
    end
+   proc{NiceZombie DX DY IX IY}
+      if DX==0 andthen DY==~1 then {DrawBox ZombieH IX IY}
+      elseif DX==1 andthen DY==0 then {DrawBox ZombieD IX IY}
+      elseif DX==0 andthen DY==1 then {DrawBox ZombieB IX IY}
+      else {DrawBox Zombie IX IY}
+      end
+   end
+   proc{NiceBrave DX DY IX IY}
+      if DX==0 andthen DY==~1 then {DrawBox BraveH IX IY}
+      elseif DX==1 andthen DY==0 then {DrawBox BraveD IX IY}
+      elseif DX==0 andthen DY==1 then {DrawBox BraveB IX IY}
+      else {DrawBox Brave IX IY}
+      end
+   end
    fun{ZombiesMove ZombieListe N MapListe Command R}
       Liste
       fun{ZombieGame OldX OldY Command MapListe R}
@@ -316,7 +336,7 @@ local
 		  elseif {CheckCase MapListe IX IY Floor}==true then
 		     {Delay D}
 		     {DrawBox Floor X Y}
-		     {DrawBox Zombie IX IY}
+		     {NiceZombie DX DY IX IY}
 		     {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0}
 		  elseif {CheckCase MapListe IX IY Brave}==true then
 		     local Nammo DirX DirY in
@@ -326,7 +346,7 @@ local
 			if(R.1==0) orelse (DirX==DX andthen DirY==DY) then%pas de mun, tue le brave--Meme direction = zombie derriere, tue le brave ENVOYER GAME OVER !?
 			   {Delay D}
 			   {DrawBox Floor X Y}
-			   {DrawBox Zombie IX IY}
+			   {NiceZombie DX DY IX IY}
 			   1
 			else
 			   {Delay D}
@@ -336,10 +356,10 @@ local
 		     end
 		  elseif {CheckCase MapListe IX IY Medicine} orelse {CheckCase MapListe IX IY Bullets} orelse {CheckCase MapListe IX IY Food} then
 		     if Count=<1 andthen (({Abs {OS.rand}} mod 5) + 1)==3 then
-			   {Delay D}
-			   {DrawBox Floor X Y}
-			   {DrawBox Zombie IX IY}
-			   {ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0}
+			{Delay D}
+			{DrawBox Floor X Y}
+			{NiceZombie DX DY IX IY}
+			{ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0}
 		     else
 			{ChooseDirection N}
 			{ZombieCommand T Count X Y MapListe R AntiBug+1}
@@ -395,13 +415,13 @@ local
 			1
 		     else
 			{DrawBox Floor X Y}
-			{DrawBox Brave IX IY}
+			{NiceBrave DX DY IX IY}
 			{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo-1 Nobjettake r(DX DY)}
 		     end
 		  elseif{CheckCase List IX IY Bullets} then
 		     if Count<1 then
 			{DrawBox Floor  X Y}
-			{DrawBox Brave IX IY}
+			{NiceBrave DX DY IX IY}
 			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo+1 Nobjettake r(DX DY)}
 		     else
 			{UserCommand T Count X Y List Nammo Nobjettake R}
@@ -409,20 +429,20 @@ local
 		  elseif{CheckCase List IX IY Medicine} orelse {CheckCase List IX IY Food} then
 		     if Count<1 then
 			{DrawBox Floor  X Y}
-			{DrawBox Brave IX IY}
+			{NiceBrave DX DY IX IY}
 			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake+1 r(DX DY)}
 		     else
-			{UserCommand T Count X Y List Nammo Nobjettake R} %PROBLEME ICI
+			{UserCommand T Count X Y List Nammo Nobjettake R}
 		     end
 		  elseif IX==Xporte andthen IY==Yporte then  if Nobjettake>=NObjetNeeded then {UserCommand win|nil Count IX IY List Nammo Nobjettake R}
 							     else
 								{DrawBox Floor X Y}
-								{DrawBox Brave IX IY}
+								{NiceBrave DX DY IX IY}
 								{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY)} 
 							     end
 		  elseif{CheckCase List IX IY Floor} then
 		     {DrawBox Floor  X Y}
-		     {DrawBox Brave IX IY}
+		     {NiceBrave DX DY IX IY}
 		     {UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY)}
 		  else
 		     {UserCommand T Count X Y List Nammo Nobjettake R}
