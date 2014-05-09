@@ -2,7 +2,7 @@ local
    QTk
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%RECUPERATION DES ARGUMENTS
-   NZombies=20 %Nombre de zombies par défaut (quand on ne passe pas en argument)
+   NZombies=3 %Nombre de zombies par défaut (quand on ne passe pas en argument)
    NObjetNeeded=3 %Nombre d'objets nécessaires par défaut (quand on ne passe pas en argument)
    NAmmo=2 %Nombre de balles par défaut (quand on ne passe pas en argument)
    %TODO RECUPERER LES ARGUMENTS
@@ -251,7 +251,7 @@ local
    in
       {RemplirListeAcc Z 1 1 Zombies 1}
    end
-   Map={LoadPickle CD#'/map_test.ozp'}
+   Map={LoadPickle CD#'/map_defaut.ozp'}
    LargeurMax={MaxWidth Map}
    HauteurMax={Width Map}
    Desc=td(title:"Zombieland" canvas(
@@ -301,7 +301,8 @@ local
       end
    end
    fun {UpdateListZombie List X Y XN YN}
-      case List of r(Col Ligne)|T then
+      case List of nil then nil
+	 []r(Col Ligne)|T then
 	 if Col==X then
 	    if Ligne==Y then
 	       r(XN YN)|T
@@ -332,6 +333,7 @@ local
       fun{ZombieGame OldX OldY Command MapListe R L}
 	 fun{ZombieCommand Command Count X Y MapListe R AntiBug L}
 	    {NBullets set(text:R.1)}
+
 	    if Count == 3 then
 	       MapListe#R.1#L
 	    else
@@ -341,6 +343,8 @@ local
 		  IY = Y+DY
 		  if AntiBug==10 then
 		     {DrawBox Floor X Y}
+		     {Browse 1}
+		     {Browse L}
 		     {ZombieCommand T 3 X Y {UpdateList MapListe X Y Floor} R 0 {DelZombie X Y L}}
 		  elseif {CheckCase MapListe IX IY Wall} orelse {CheckCase MapListe IX IY Zombie} then
 		     {ChooseDirection N}
@@ -349,7 +353,7 @@ local
 		     {Delay D}
 		     {DrawBox Floor X Y}
 		     {NiceZombie DX DY IX IY}
-		     {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0 {UpdateListZombie X Y IX IY L}}
+		     {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0 {UpdateListZombie L X Y IX IY}}
 		  elseif {CheckCase MapListe IX IY Brave}==true then
 		     local Nammo DirX DirY in
 			Nammo = R.1
@@ -363,6 +367,8 @@ local
 			else
 			   {Delay D}
 			   {DrawBox Floor X Y}
+			   {Browse 2}
+			   {Browse L}
 			   {ZombieCommand Command 3 X Y {UpdateList MapListe X Y Floor} (Nammo-1)#R.2 0 {DelZombie X Y L}} %Zombie se fait tuer, je sais pas trop comment faire. Deja mis a jour la liste. Comment passer au zombie suivant?
 			end
 		     end
@@ -371,7 +377,7 @@ local
 			{Delay D}
 			{DrawBox Floor X Y}
 			{NiceZombie DX DY IX IY}
-			{ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0 {UpdateListZombie X Y IX IY L}}
+			{ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R 0 {UpdateListZombie L X Y IX IY }}
 		     else
 			{ChooseDirection N}
 			{ZombieCommand T Count X Y MapListe R AntiBug+1 L}
@@ -398,6 +404,7 @@ local
 	       {ZombiesMove T N+1 Res.1 Command Res.2#R.2 Res.3}
 	    end
 	 end
+	 else MapListe#R.1#L
       end
    end
    fun{Game OldX OldY Command List}
@@ -476,6 +483,7 @@ local
 in
    {Window show}
    MapList={RemplirListe Map {ZombiesNumber NZombies Map}}
+   {Browse 1}
    {InitLayout MapList}
    {BuildZombiePort NZombies CommandZombie CommandZombiePort}
    {Canvas create(text 55 10 text:"Number of bullets :" fill:red)}
