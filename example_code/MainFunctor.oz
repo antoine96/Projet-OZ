@@ -415,7 +415,7 @@ define
 	 {ZombieCommand Command 0 OldX OldY MapListe R 0 L}
       end
    in
-      case ZombieListe of nil then MapListe#R.1
+      case ZombieListe of nil then MapListe#R.1#L
       [] r(X Y)|T then
 	 local Res in
 	    {ChooseDirection N}
