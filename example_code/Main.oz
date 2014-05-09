@@ -28,6 +28,7 @@ local
    CommandPort = {NewPort Command}
    CommandZombie
    CommandZombiePort
+   D=500
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%CHARGEMENT DES IMAGES
    CD = {OS.getCWD}
    Brave = {QTk.newImage photo(height:TailleCase width:TailleCase file:CD#'/brave.gif')}
@@ -310,23 +311,22 @@ local
 		     {ChooseDirection N}
 		     {ZombieCommand T Count X Y MapListe R AntiBug+1} 
 		  elseif {CheckCase MapListe IX IY Floor}==true then
-		     {Delay 200}
+		     {Delay D}
 		     {DrawBox Floor X Y}
 		     {DrawBox Zombie IX IY}
 		     {ZombieCommand Command Count+1 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R AntiBug}
 		  elseif {CheckCase MapListe IX IY Brave}==true then
 		     local Nammo DirX DirY in
 			Nammo = R.1
-			DirX=R.2.1.1
-			DirY=R.2.1.2
-			{Browse DirY}
-			if(R.1==0) orelse DirX==DX orelse DirY==DY then%pas de mun, tue le brave--Meme direction = zombie derriere, tue le brave ENVOYER GAME OVER !?
-			   {Delay 200}
+			DirX=R.2.1
+			DirY=R.2.2
+			if(R.1==0) orelse (DirX==DX andthen DirY==DY) then%pas de mun, tue le brave--Meme direction = zombie derriere, tue le brave ENVOYER GAME OVER !?
+			   {Delay D}
 			   {DrawBox Floor X Y}
 			   {DrawBox Zombie IX IY}
 			   1
 			else
-			   {Delay 200}
+			   {Delay D}
 			   {DrawBox Floor X Y}
 			   {ZombieCommand Command 3 X Y {UpdateList MapListe X Y Floor} (Nammo-1)#R.2 AntiBug} %Zombie se fait tuer, je sais pas trop comment faire. Deja mis a jour la liste. Comment passer au zombie suivant?
 			end
@@ -334,7 +334,7 @@ local
 		  elseif {CheckCase MapListe IX IY Medicine} orelse {CheckCase MapListe IX IY Bullets} orelse {CheckCase MapListe IX IY Food} then
 		     if Count=<1 then
 			if (({Abs {OS.rand}} mod 5) + 1)==3 then
-			   {Delay 1000}
+			   {Delay D}
 			   {DrawBox Floor X Y}
 			   {DrawBox Zombie IX IY}
 			   {ZombieCommand Command Count+2 IX IY {UpdateList {UpdateList MapListe IX IY Zombie} X Y Floor} R AntiBug}
@@ -408,13 +408,13 @@ local
 		     else
 			{DrawBox Floor X Y}
 			{DrawBox Brave IX IY}
-			{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo-1 Nobjettake r(DX DY)|R}
+			{UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo-1 Nobjettake r(DX DY)}
 		     end
 		  elseif{CheckCase List IX IY Bullets} then
 		     if Count<1 then
 			{DrawBox Floor  X Y}
 			{DrawBox Brave IX IY}
-			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo+1 Nobjettake r(DX DY)|R}
+			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo+1 Nobjettake r(DX DY)}
 		     else
 			{UserCommand T Count X Y List Nammo Nobjettake R}
 		     end
@@ -422,7 +422,7 @@ local
 		     if Count<1 then
 			{DrawBox Floor  X Y}
 			{DrawBox Brave IX IY}
-			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake+1 r(DX DY)|R}
+			{UserCommand T Count+2 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake+1 r(DX DY)}
 		     else
 			{UserCommand T Count X Y List Nammo Nobjettake R} %PROBLEME ICI
 		     end
@@ -432,7 +432,7 @@ local
 		  elseif{CheckCase List IX IY Floor} then
 		     {DrawBox Floor  X Y}
 		     {DrawBox Brave IX IY}
-		     {UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY)|R}
+		     {UserCommand T Count+1 IX IY {UpdateList {UpdateList List IX IY Brave} X Y Floor} Nammo Nobjettake r(DX DY)}
 		  else
 		     {UserCommand T Count X Y List Nammo Nobjettake R}
 		  end
